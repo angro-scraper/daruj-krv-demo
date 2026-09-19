@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Klikabilni prototip aplikacije za dobrovoljno davanje krvi i portala Zavoda">
+  <title>Dobrovoljno davanje krvi - klikabilni prototip</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%238B1E2D' d='M32 4C24 17 14 27 14 40a18 18 0 0 0 36 0C50 27 40 17 32 4Z'/%3E%3Cpath fill='white' opacity='.86' d='M24 42c1.5 6 6 9 12 9 3 0 5.5-.8 7.5-2.2A14 14 0 0 1 20 39c0-3 1-6 3-9-1 5-1 8 1 12Z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="prototype-bar">
+    <div class="prototype-title">
+      <span class="eyebrow">INTERAKTIVNI PROTOTIP · V1</span>
+      <strong>Dobrovoljno davanje krvi</strong>
+    </div>
+    <div class="product-switch" role="group" aria-label="Izaberi deo sistema">
+      <button class="switch-button active" data-mode="mobile">Aplikacija davaoca</button>
+      <button class="switch-button" data-mode="portal">Portal Zavoda</button>
+    </div>
+    <div class="prototype-meta"><span class="status-pill draft">Radna verzija</span><button class="text-button" data-action="show-decisions">Odluke za pregled</button></div>
+  </header>
+
+  <main>
+    <section id="mobile-view" class="workspace mobile-workspace">
+      <aside class="screen-index" aria-label="Ekrani mobilne aplikacije">
+        <div class="index-intro">
+          <span class="eyebrow">APLIKACIJA DAVAOCA</span>
+          <h1>Tokovi i ekrani</h1>
+          <p>Izaberi ekran ili koristi dugmad u telefonu. Sadržaj je demonstracioni.</p>
+        </div>
+        <div id="mobile-screen-list" class="screen-list"></div>
+        <div class="decision-note">
+          <strong>Osnovni princip</strong>
+          <span>Aplikacija prikazuje podatke iz potvrđene evidencije, ali konačnu procenu za davanje obavlja lekar.</span>
+        </div>
+      </aside>
+
+      <div class="device-stage">
+        <div class="phone" aria-label="Mobilni prototip">
+          <div class="phone-status"><span>9:41</span><span class="phone-signals">● ● ▰</span></div>
+          <div id="mobile-screen" class="phone-content" aria-live="polite"></div>
+          <nav id="mobile-nav" class="mobile-nav" aria-label="Glavna navigacija">
+            <button data-mobile-screen="home"><span class="nav-icon">⌂</span><span>Početna</span></button>
+            <button data-mobile-screen="actions"><span class="nav-icon">⌖</span><span>Akcije</span></button>
+            <button data-mobile-screen="notifications"><span class="nav-icon">◔</span><span>Obaveštenja</span></button>
+            <button data-mobile-screen="profile"><span class="nav-icon">○</span><span>Profil</span></button>
+          </nav>
+        </div>
+        <div class="device-caption"><span id="mobile-flow-label">Početni ekran</span><span>Klikni kroz tok</span></div>
+      </div>
+
+      <aside class="review-panel">
+        <span class="eyebrow">ZA ODLUKU</span>
+        <h2>Šta proveravamo</h2>
+        <div id="decision-checklist" class="checklist"></div>
+        <button class="secondary-button" data-action="show-map">Prikaži mapu svih ekrana</button>
+      </aside>
+    </section>
+
+    <section id="portal-view" class="workspace portal-workspace hidden">
+      <aside class="portal-sidebar">
+        <div class="portal-brand"><span class="drop-mark">◆</span><div><strong>Portal Zavoda</strong><small>Radno okruženje</small></div></div>
+        <nav id="portal-nav" aria-label="Navigacija portala">
+          <button data-portal-screen="dashboard">Pregled</button>
+          <button data-portal-screen="events">Akcije i termini</button>
+          <button data-portal-screen="checkin">Prijem davalaca</button>
+          <button data-portal-screen="campaigns">Kampanje</button>
+          <button data-portal-screen="donors">Davaoci i provere</button>
+          <button data-portal-screen="inventory">Zalihe krvi</button>
+          <button data-portal-screen="content">Sadržaj</button>
+          <button data-portal-screen="reports">Izveštaji</button>
+          <button data-portal-screen="access">Uloge i trag promena</button>
+        </nav>
+        <div class="user-card"><span>JM</span><div><strong>Jelena Marković</strong><small>Koordinator akcija</small></div><button aria-label="Podešavanja">⋯</button></div>
+      </aside>
+      <div id="portal-screen" class="portal-main" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <dialog id="prototype-dialog" class="prototype-dialog">
+    <div class="dialog-header"><div><span class="eyebrow">PREGLED PROTOTIPA</span><h2 id="dialog-title">Odluke za pregled</h2></div><button class="icon-button" data-action="close-dialog" aria-label="Zatvori">×</button></div>
+    <div id="dialog-content" class="dialog-content"></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="app.js"></script>
+</body>
+</html>
