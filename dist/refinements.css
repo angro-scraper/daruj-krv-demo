@@ -188,6 +188,133 @@ button:active { transform: translateY(1px); }
 .blood-card, .role-card, .revision-card, .editor-area { border-color: #e8dfdd; box-shadow: 0 6px 18px rgba(54,28,34,.035); }
 .toast { right: 28px; bottom: 28px; padding: 14px 17px; border-radius: 14px; background: #2c2023; }
 
+/* V3 — unified controls and restrained professional finish */
+body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
+
+.primary-button,
+.secondary-button,
+.ghost-button,
+.danger-button {
+  min-height: 46px;
+  padding: 11px 16px;
+  border-radius: 12px;
+  line-height: 1.15;
+  font-weight: 750;
+}
+.primary-button {
+  background: linear-gradient(180deg, #98243a 0%, #861e32 100%);
+  box-shadow: 0 7px 16px rgba(117, 27, 45, .16);
+}
+.primary-button:hover { background: linear-gradient(180deg, #8d2135 0%, #741728 100%); }
+.ghost-button, .secondary-button, .danger-button { box-shadow: 0 3px 10px rgba(54, 28, 34, .035); }
+
+.phone-content > .primary-button,
+.phone-content > .secondary-button,
+.phone-content > .ghost-button,
+.form-stack > .primary-button,
+.form-stack > .ghost-button,
+.onboarding-actions > button,
+.menu-row,
+.event-card,
+.quick-card { width: 100%; }
+
+.button-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+.button-row > button { width: 100%; }
+
+.segmented { gap: 4px; padding: 4px; border: 1px solid #e7dfdd; background: #f0ecea; }
+.segmented button { min-height: 40px; }
+.segmented button.active { box-shadow: 0 3px 11px rgba(54, 28, 34, .08); }
+
+.chips {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  overflow: visible;
+  padding-bottom: 10px;
+}
+.chips.education-chips { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.chip {
+  width: 100%;
+  min-width: 0;
+  min-height: 37px;
+  padding: 8px 6px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-color: #e3dad8;
+  color: #62595c;
+  text-align: center;
+  font-size: .72rem;
+}
+.chip.active {
+  color: white;
+  border-color: var(--wine);
+  background: var(--wine);
+  box-shadow: 0 5px 13px rgba(137, 31, 51, .16);
+}
+
+.map-card { width: 100%; height: 144px; border-radius: 17px; border-color: #e2dcda; box-shadow: inset 0 0 0 1px rgba(255,255,255,.42); }
+.event-card {
+  grid-template-columns: 56px minmax(0, 1fr) 18px;
+  min-height: 84px;
+  padding: 12px;
+  border-radius: 17px;
+  background: #fff;
+}
+.event-card + .event-card { margin-top: 10px; }
+.date-tile { width: 56px; min-height: 60px; justify-content: center; }
+.event-card .event-info { min-width: 0; gap: 3px; }
+.event-card .event-info strong { overflow: hidden; text-overflow: ellipsis; line-height: 1.25; white-space: nowrap; }
+.event-card .event-info span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.event-card .chevron { justify-self: end; font-size: 1.25rem; }
+
+.menu-row { min-height: 66px; text-align: left; }
+.time-slot { min-height: 43px; border-radius: 11px; }
+.toggle-row button { min-height: 43px; }
+.secondary-button { margin-top: 14px; }
+
+.portal-nav-icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.portal-sidebar nav button { width: 100%; }
+.portal-actions {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(154px, 1fr);
+  align-items: center;
+}
+.portal-actions > button { width: 100%; min-height: 44px; }
+.portal-button-row { width: min(100%, 410px); }
+.table-button {
+  min-width: 72px;
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid #e1d6d4;
+  border-radius: 9px;
+  background: white;
+  text-align: center;
+}
+.table-button:hover { border-color: #cfb7bc; background: #fff7f8; }
+.metric-card, .panel { box-shadow: 0 7px 22px rgba(54, 28, 34, .038); }
+.metric-card::before { width: 2px; }
+.panel { border-radius: 18px; }
+.data-table tbody tr { transition: background-color .16s ease; }
+
+@media (max-width: 1100px) {
+  .prototype-bar { grid-template-columns: minmax(210px, 1fr) auto; }
+  .prototype-meta { display: none; }
+}
+
 @media (max-width: 1180px) {
   .portal-workspace { grid-template-columns: 242px 1fr; }
 }
