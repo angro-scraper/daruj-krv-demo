@@ -66,6 +66,7 @@ function renderMobile(screen=state.mobileScreen){
   $('#mobile-nav').classList.toggle('hidden',onboarding);
   $$('#mobile-nav [data-mobile-screen]').forEach(button=>button.classList.toggle('active',button.dataset.mobileScreen===root));
   mobileScreen.innerHTML=mobileTemplates[screen]?.()||mobileTemplates.home();
+  mobileScreen.scrollTop=0;
   renderChecklist();
   history.replaceState(null,'',`#mobile/${screen}`);
 }
