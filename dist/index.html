@@ -7,18 +7,19 @@
   <title>Dobrovoljno davanje krvi - klikabilni prototip</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%238B1E2D' d='M32 4C24 17 14 27 14 40a18 18 0 0 0 36 0C50 27 40 17 32 4Z'/%3E%3Cpath fill='white' opacity='.86' d='M24 42c1.5 6 6 9 12 9 3 0 5.5-.8 7.5-2.2A14 14 0 0 1 20 39c0-3 1-6 3-9-1 5-1 8 1 12Z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="refinements.css">
 </head>
 <body>
   <header class="prototype-bar">
     <div class="prototype-title">
-      <span class="eyebrow">INTERAKTIVNI PROTOTIP · V1</span>
+      <span class="eyebrow">INTERAKTIVNI PROTOTIP · V2</span>
       <strong>Dobrovoljno davanje krvi</strong>
     </div>
     <div class="product-switch" role="group" aria-label="Izaberi deo sistema">
       <button class="switch-button active" data-mode="mobile">Aplikacija davaoca</button>
       <button class="switch-button" data-mode="portal">Portal Zavoda</button>
     </div>
-    <div class="prototype-meta"><span class="status-pill draft">Radna verzija</span><button class="text-button" data-action="show-decisions">Odluke za pregled</button></div>
+    <div class="prototype-meta"><span class="status-pill draft">Dizajn za ljude</span><button class="text-button" data-action="show-decisions">Odluke za pregled</button></div>
   </header>
 
   <main>
@@ -41,18 +42,18 @@
           <div class="phone-status"><span>9:41</span><span class="phone-signals">● ● ▰</span></div>
           <div id="mobile-screen" class="phone-content" aria-live="polite"></div>
           <nav id="mobile-nav" class="mobile-nav" aria-label="Glavna navigacija">
-            <button data-mobile-screen="home"><span class="nav-icon">⌂</span><span>Početna</span></button>
-            <button data-mobile-screen="actions"><span class="nav-icon">⌖</span><span>Akcije</span></button>
-            <button data-mobile-screen="notifications"><span class="nav-icon">◔</span><span>Obaveštenja</span></button>
-            <button data-mobile-screen="profile"><span class="nav-icon">○</span><span>Profil</span></button>
+            <button data-mobile-screen="home"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.7 12 3l9 7.7v9.1a1.2 1.2 0 0 1-1.2 1.2H4.2A1.2 1.2 0 0 1 3 19.8Z"/><path d="M9 21v-7h6v7"/></svg></span><span>Početna</span></button>
+            <button data-mobile-screen="actions"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5.4-8 11-8 11S4 15.4 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>Akcije</span></button>
+            <button data-mobile-screen="notifications"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8Z"/><path d="M10 21h4"/></svg></span><span>Obaveštenja</span></button>
+            <button data-mobile-screen="profile"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg></span><span>Profil</span></button>
           </nav>
         </div>
         <div class="device-caption"><span id="mobile-flow-label">Početni ekran</span><span>Klikni kroz tok</span></div>
       </div>
 
       <aside class="review-panel">
-        <span class="eyebrow">ZA ODLUKU</span>
-        <h2>Šta proveravamo</h2>
+        <span class="eyebrow">DIZAJN ZA LJUDE</span>
+        <h2>Poverenje i jasnoća</h2>
         <div id="decision-checklist" class="checklist"></div>
         <button class="secondary-button" data-action="show-map">Prikaži mapu svih ekrana</button>
       </aside>
@@ -60,17 +61,17 @@
 
     <section id="portal-view" class="workspace portal-workspace hidden">
       <aside class="portal-sidebar">
-        <div class="portal-brand"><span class="drop-mark">◆</span><div><strong>Portal Zavoda</strong><small>Radno okruženje</small></div></div>
+        <div class="portal-brand"><span class="drop-mark"><svg viewBox="0 0 32 38" aria-hidden="true"><path d="M16 1C11 10 3 17 3 25a13 13 0 0 0 26 0C29 17 21 10 16 1Z"/><path d="M9 25c1 5 4 8 9 9"/></svg></span><div><strong>Portal Zavoda</strong><small>Sigurno radno okruženje</small></div></div>
         <nav id="portal-nav" aria-label="Navigacija portala">
-          <button data-portal-screen="dashboard">Pregled</button>
-          <button data-portal-screen="events">Akcije i termini</button>
-          <button data-portal-screen="checkin">Prijem davalaca</button>
-          <button data-portal-screen="campaigns">Kampanje</button>
-          <button data-portal-screen="donors">Davaoci i provere</button>
-          <button data-portal-screen="inventory">Zalihe krvi</button>
-          <button data-portal-screen="content">Sadržaj</button>
-          <button data-portal-screen="reports">Izveštaji</button>
-          <button data-portal-screen="access">Uloge i trag promena</button>
+          <button data-portal-screen="dashboard"><span class="portal-nav-icon">⌂</span>Pregled</button>
+          <button data-portal-screen="events"><span class="portal-nav-icon">▦</span>Akcije i termini</button>
+          <button data-portal-screen="checkin"><span class="portal-nav-icon">⌁</span>Prijem davalaca</button>
+          <button data-portal-screen="campaigns"><span class="portal-nav-icon">◖</span>Kampanje</button>
+          <button data-portal-screen="donors"><span class="portal-nav-icon">◎</span>Davaoci i provere</button>
+          <button data-portal-screen="inventory"><span class="portal-nav-icon">◈</span>Zalihe krvi</button>
+          <button data-portal-screen="content"><span class="portal-nav-icon">≡</span>Sadržaj</button>
+          <button data-portal-screen="reports"><span class="portal-nav-icon">↗</span>Izveštaji</button>
+          <button data-portal-screen="access"><span class="portal-nav-icon">◇</span>Uloge i trag promena</button>
         </nav>
         <div class="user-card"><span>JM</span><div><strong>Jelena Marković</strong><small>Koordinator akcija</small></div><button aria-label="Podešavanja">⋯</button></div>
       </aside>
