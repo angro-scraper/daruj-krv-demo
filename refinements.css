@@ -368,6 +368,13 @@ body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
 .integration-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; }
 .integration-grid article { display:flex; flex-direction:column; gap:6px; padding:15px; border:1px solid #e7dfdd; border-radius:14px; background:linear-gradient(145deg,#fff,#fffaf7); }
 .integration-grid span { color:var(--muted); font-size:.78rem; line-height:1.45; }
+.super-admin-callout{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:14px;margin-bottom:16px;padding:16px;border:1px solid #ead1d7;border-radius:18px;background:linear-gradient(125deg,#fff3f5,#fffaf4 62%,#f2fbfa)}
+.super-admin-mark{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:linear-gradient(135deg,var(--wine),var(--coral));color:#fff;font-size:.82rem;font-weight:900;letter-spacing:.04em;box-shadow:0 8px 18px rgba(137,30,45,.18)}
+.super-admin-callout strong{display:block;font-size:1rem}.super-admin-callout p{margin:4px 0 0;color:var(--muted);font-size:.8rem;line-height:1.45}
+.staff-directory{display:grid;gap:10px}.staff-card{display:grid;grid-template-columns:43px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px;border:1px solid #e8dfdd;border-radius:15px;background:linear-gradient(125deg,#fff,#fffdfc);box-shadow:0 5px 15px rgba(54,28,34,.025);cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.staff-card:hover{transform:translateY(-1px);border-color:#d9bec5;box-shadow:0 10px 22px rgba(54,28,34,.07)}
+.staff-avatar{display:grid;place-items:center;width:43px;height:43px;border-radius:14px;background:linear-gradient(135deg,#fce9ee,#e4f6f4);color:var(--wine);font-size:.75rem;font-weight:900}.staff-main{min-width:0;display:flex;flex-direction:column;gap:3px}.staff-main strong{font-size:.9rem}.staff-main small{color:var(--wine);font-size:.72rem;font-weight:750}.staff-main p{margin:1px 0;color:var(--muted);font-size:.73rem;line-height:1.4}.staff-action{display:inline-flex;width:max-content;max-width:100%;margin-top:3px;padding:4px 7px;border-radius:999px;background:#f1faf8;color:#287869;font-size:.65rem;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.staff-state{display:flex;flex-direction:column;align-items:flex-end;gap:8px}.staff-state .table-button{font-size:.72rem}
+.role-grid-wide{grid-template-columns:repeat(3,minmax(0,1fr))}.role-card{display:flex;flex-direction:column;gap:4px;background:linear-gradient(145deg,#fff,#fffdfc)}.role-card .small-label{color:var(--wine);font-size:.65rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}.role-card small{color:#49736c;font-size:.7rem;line-height:1.4}.super-admin-card{border-color:#d9aebb;background:linear-gradient(145deg,#fff1f4,#fff9ed)}.super-admin-card h3{color:var(--wine)}
+.assignment-flow{display:grid;grid-template-columns:34px minmax(0,1fr) 34px minmax(0,1fr) 34px minmax(0,1fr);align-items:center;gap:10px}.assignment-flow>span{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--wine);color:#fff;font-size:.75rem;font-weight:900;box-shadow:0 5px 12px rgba(137,30,45,.16)}.assignment-flow>div{display:flex;flex-direction:column;gap:4px}.assignment-flow strong{font-size:.82rem}.assignment-flow small{color:var(--muted);font-size:.71rem;line-height:1.4}
 
 @media (max-width: 1100px) {
   .prototype-bar { grid-template-columns: minmax(210px, 1fr) auto; }
@@ -387,6 +394,7 @@ body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
   .portal-sidebar nav button { min-height: 41px; }
   .portal-nav-icon { display: none; }
   .integration-grid { grid-template-columns:1fr; }
+  .role-grid-wide{grid-template-columns:repeat(2,minmax(0,1fr))}.assignment-flow{grid-template-columns:34px 1fr;align-items:start}.assignment-flow>span{margin-top:2px}
 }
 
 @media (max-width: 560px) {
@@ -396,6 +404,7 @@ body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
   .portal-main { padding-inline: 14px; }
   .result-count { width:100%; margin-left:0; }
   .route-list li { grid-template-columns:1fr; gap:4px; }
+  .super-admin-callout{grid-template-columns:42px minmax(0,1fr);padding:13px}.super-admin-mark{width:42px;height:42px;border-radius:13px}.super-admin-callout .table-button{grid-column:1/-1;width:100%}.staff-card{grid-template-columns:40px minmax(0,1fr);gap:10px}.staff-avatar{width:40px;height:40px}.staff-state{grid-column:1/-1;flex-direction:row;justify-content:space-between}.role-grid-wide{grid-template-columns:1fr}.assignment-flow{grid-template-columns:30px 1fr;gap:9px}.assignment-flow>span{width:28px;height:28px}
 }
 
 @media (prefers-reduced-motion: reduce) {
