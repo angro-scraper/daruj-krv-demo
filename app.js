@@ -1,6 +1,6 @@
 const isAdminEntry=document.body.dataset.startMode==='portal';
 const configuredApiBase=new URLSearchParams(location.search).get('api')?.replace(/\/$/,'')||'';
-const state={mode:isAdminEntry?'portal':'mobile',mobileScreen:'home',portalScreen:'dashboard',selectedTime:'10:30',actionsView:'list',mapSelected:'Dom omladine',notificationsRead:false,operationsQuery:'',operationsStatus:'all',eventQuery:'',eventMunicipality:'all',eventStatus:'all',selectedPortalDay:'19',api:{status:configuredApiBase?'checking':'not-configured',message:configuredApiBase?'Proveravamo demonstracioni API…':'API adresa nije podešena',checkedAt:null}};
+const state={mode:isAdminEntry?'portal':'mobile',mobileScreen:'home',portalScreen:'dashboard',selectedTime:'10:30',actionsView:'list',mapSelected:'Dom omladine',notificationsRead:false,operationsQuery:'',operationsStatus:'all',eventQuery:'',eventMunicipality:'all',eventStatus:'all',selectedPortalDay:'19',api:{status:configuredApiBase?'ready':'not-configured',message:configuredApiBase?'Adresa je podešena. Pokrenite proveru veze.':'API adresa nije podešena',checkedAt:null}};
 
 const mobileCatalog=[
   {title:'Glavni tok',items:[['home','Početni ekran'],['actions','Akcije i mapa'],['action-detail','Detalj akcije'],['booking','Izbor termina'],['booking-success','Potvrđen termin'],['appointments','Moji termini']]},
@@ -51,7 +51,7 @@ const mapLocations={
 function showToast(message){const toast=$('#toast');toast.textContent=message;toast.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>toast.classList.remove('show'),2600)}
 function pill(label,type='neutral'){return `<span class="pill ${type}">${label}</span>`}
 function statusTone(status){return ({Zakazan:'warning',Prijavljen:'info','Kod tima':'success','Nije došao':'neutral'})[status]||'neutral'}
-function apiStatusMarkup(){const stateClass=state.api.status==='connected'?'success':state.api.status==='failed'?'warning':'neutral';const label=state.api.status==='connected'?'API povezan':state.api.status==='checking'?'Provera API-ja':'API nije podešen';return `<div class="api-status"><span class="api-status-dot ${stateClass}"></span><div><strong>${label}</strong><small>${state.api.message}</small></div>${state.api.checkedAt?`<time>${state.api.checkedAt}</time>`:''}</div>`}
+function apiStatusMarkup(){const stateClass=state.api.status==='connected'?'success':state.api.status==='failed'?'warning':'neutral';const label=state.api.status==='connected'?'API povezan':state.api.status==='checking'?'Provera API-ja':state.api.status==='failed'?'Veza nije dostupna':state.api.status==='ready'?'Spremno za proveru':'API nije podešen';return `<div class="api-status"><span class="api-status-dot ${stateClass}"></span><div><strong>${label}</strong><small>${state.api.message}</small></div>${state.api.checkedAt?`<time>${state.api.checkedAt}</time>`:''}</div>`}
 async function checkConfiguredApi(resource='/health'){
   if(!configuredApiBase){state.api={status:'not-configured',message:'Dodajte ?api=https://api-vasa-domena da portal čita odobreni API.',checkedAt:null};renderPortal('integrations');return}
   state.api={status:'checking',message:'Proveravamo vezu i odgovor servera…',checkedAt:null};renderPortal('integrations');
