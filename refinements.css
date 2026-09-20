@@ -512,6 +512,7 @@ body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
 @media (max-width:760px){.portal-header{padding:14px;margin:-2px 0 18px;border-radius:17px}.portal-workspace::after{width:220px;height:220px;right:-110px;bottom:-90px}.portal-sidebar nav{display:flex;overflow-x:auto;padding:7px 0}.portal-sidebar nav button{flex:0 0 auto}.portal-sidebar nav button:hover{transform:none}}
 
 /* V10 — page-by-page refinement: dense operational screens remain calm and legible */
+.header-context{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;border:1px solid #e4ebe7;border-radius:12px;background:#f4faf7;color:#39715e;font-size:.72rem;font-weight:800;letter-spacing:.02em}
 .calendar-strip{padding:8px;border:1px solid rgba(224,215,210,.9);border-radius:19px;background:rgba(255,255,255,.6);box-shadow:0 8px 21px rgba(59,42,43,.03)}
 .day-cell{position:relative;overflow:hidden;border:1px solid transparent;background:transparent;color:#71686a}
 .day-cell:hover{background:#fff;border-color:#ead7d7;transform:translateY(-1px)}
