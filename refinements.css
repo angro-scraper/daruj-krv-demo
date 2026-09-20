@@ -513,7 +513,7 @@ body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
 
 /* V10 — page-by-page refinement: dense operational screens remain calm and legible */
 .header-context{display:inline-flex;align-items:center;min-height:38px;padding:0 12px;border:1px solid #e4ebe7;border-radius:12px;background:#f4faf7;color:#39715e;font-size:.72rem;font-weight:800;letter-spacing:.02em}
-@media (max-width:760px){.portal-workspace{grid-template-columns:minmax(0,1fr);min-width:0;width:100%;overflow-x:hidden}.portal-sidebar{min-width:0;width:100%}.portal-sidebar nav{min-width:0;width:100%;overflow-x:auto}.portal-sidebar nav button{min-width:max-content}.portal-main{width:100%;max-width:none;min-width:0}.portal-screen{min-width:0}}
+@media (max-width:760px){.portal-workspace{grid-template-columns:minmax(0,1fr);min-width:0;width:100%;overflow-x:hidden}.portal-sidebar{min-width:0;width:100%}.portal-sidebar nav{min-width:0;width:100%;overflow-x:auto}.portal-sidebar nav button{width:auto;min-width:max-content}.portal-main{width:100%;max-width:none;min-width:0}.portal-screen{min-width:0}}
 .calendar-strip{padding:8px;border:1px solid rgba(224,215,210,.9);border-radius:19px;background:rgba(255,255,255,.6);box-shadow:0 8px 21px rgba(59,42,43,.03)}
 .day-cell{position:relative;overflow:hidden;border:1px solid transparent;background:transparent;color:#71686a}
 .day-cell:hover{background:#fff;border-color:#ead7d7;transform:translateY(-1px)}
