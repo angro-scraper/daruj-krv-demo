@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="sr-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Klikabilni prototip aplikacije za dobrovoljno davanje krvi i portala Zavoda">
+  <title>Dobrovoljno davanje krvi - klikabilni prototip</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%238B1E2D' d='M32 4C24 17 14 27 14 40a18 18 0 0 0 36 0C50 27 40 17 32 4Z'/%3E%3Cpath fill='white' opacity='.86' d='M24 42c1.5 6 6 9 12 9 3 0 5.5-.8 7.5-2.2A14 14 0 0 1 20 39c0-3 1-6 3-9-1 5-1 8 1 12Z'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="refinements.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTR9BMY=" crossorigin="">
+</head>
+<body>
+  <header class="prototype-bar">
+    <div class="prototype-title">
+      <span class="eyebrow">INTERAKTIVNI PROTOTIP · V3</span>
+      <strong>Dobrovoljno davanje krvi</strong>
+      <em>Od srca. Za život.</em>
+    </div>
+    <div class="product-switch" role="group" aria-label="Izaberi deo sistema">
+      <button class="switch-button active" data-mode="mobile">Aplikacija davaoca</button>
+      <button class="switch-button" data-mode="portal">Portal Zavoda</button>
+    </div>
+    <div class="prototype-meta"><span class="status-pill draft">Profesionalni UI</span><a class="text-button" href="admin/">Portal Zavoda</a><button class="text-button" data-action="show-decisions">Odluke za pregled</button></div>
+  </header>
+
+  <main>
+    <section id="mobile-view" class="workspace mobile-workspace">
+      <aside class="screen-index" aria-label="Ekrani mobilne aplikacije">
+        <div class="index-intro">
+          <span class="eyebrow">APLIKACIJA DAVAOCA</span>
+          <h1>Tokovi i ekrani</h1>
+          <p>Izaberi ekran ili koristi dugmad u telefonu. Sadržaj je demonstracioni.</p>
+        </div>
+        <div id="mobile-screen-list" class="screen-list"></div>
+        <div class="decision-note">
+          <strong>Osnovni princip</strong>
+          <span>Aplikacija prikazuje podatke iz potvrđene evidencije, ali konačnu procenu za davanje obavlja lekar.</span>
+        </div>
+      </aside>
+
+      <div class="device-stage">
+        <div class="phone" aria-label="Mobilni prototip">
+          <div class="phone-status"><span>9:41</span><span class="phone-signals">● ● ▰</span></div>
+          <div id="mobile-screen" class="phone-content" aria-live="polite"></div>
+          <nav id="mobile-nav" class="mobile-nav" aria-label="Glavna navigacija">
+            <button data-mobile-screen="home"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.7 12 3l9 7.7v9.1a1.2 1.2 0 0 1-1.2 1.2H4.2A1.2 1.2 0 0 1 3 19.8Z"/><path d="M9 21v-7h6v7"/></svg></span><span>Početna</span></button>
+            <button data-mobile-screen="actions"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5.4-8 11-8 11S4 15.4 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>Akcije</span></button>
+            <button data-mobile-screen="notifications"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8Z"/><path d="M10 21h4"/></svg></span><span>Obaveštenja</span></button>
+            <button data-mobile-screen="profile"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21a7.5 7.5 0 0 1 15 0"/></svg></span><span>Profil</span></button>
+          </nav>
+        </div>
+        <div class="device-caption"><span id="mobile-flow-label">Početni ekran</span><span>Klikni kroz tok</span></div>
+      </div>
+
+      <aside class="review-panel">
+        <span class="eyebrow">DIZAJN ZA LJUDE</span>
+        <h2>Poverenje i jasnoća</h2>
+        <div id="decision-checklist" class="checklist"></div>
+        <button class="secondary-button" data-action="show-map">Prikaži mapu svih ekrana</button>
+      </aside>
+    </section>
+
+    <section id="portal-view" class="workspace portal-workspace hidden">
+      <aside class="portal-sidebar">
+        <div class="portal-brand"><span class="drop-mark"><svg viewBox="0 0 32 38" aria-hidden="true"><path d="M16 1C11 10 3 17 3 25a13 13 0 0 0 26 0C29 17 21 10 16 1Z"/><path d="M9 25c1 5 4 8 9 9"/></svg></span><div><strong>Portal Zavoda</strong><small>Sigurno radno okruženje</small></div></div>
+        <nav id="portal-nav" aria-label="Navigacija portala">
+          <button data-portal-screen="dashboard"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Pregled</button>
+          <button data-portal-screen="events"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg></span>Akcije i termini</button>
+          <button data-portal-screen="checkin"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><circle cx="12" cy="10" r="3"/><path d="M7.5 18a4.5 4.5 0 0 1 9 0"/></svg></span>Prijem davalaca</button>
+          <button data-portal-screen="campaigns"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 11 15-6v14L3 13Z"/><path d="M18 9a3 3 0 0 1 0 6M7 14l1 6h4l-2-7"/></svg></span>Kampanje</button>
+          <button data-portal-screen="donors"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0M16 5a3 3 0 0 1 0 6M17 14a5 5 0 0 1 4 5"/></svg></span>Davaoci i provere</button>
+          <button data-portal-screen="inventory"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C9 7 5 11 5 15a7 7 0 0 0 14 0c0-4-4-8-7-13Z"/><path d="M9 16a3 3 0 0 0 3 3"/></svg></span>Zalihe krvi</button>
+          <button data-portal-screen="content"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l4 4v14H6Z"/><path d="M14 3v5h5M9 12h7M9 16h7"/></svg></span>Sadržaj</button>
+          <button data-portal-screen="reports"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span>Izveštaji</button>
+          <button data-portal-screen="access"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6Z"/><path d="m9 12 2 2 4-4"/></svg></span>Uloge i trag promena</button>
+        </nav>
+        <div class="user-card"><span>JM</span><div><strong>Jelena Marković</strong><small>Koordinator akcija</small></div><button aria-label="Podešavanja">⋯</button></div>
+      </aside>
+      <div id="portal-screen" class="portal-main" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <dialog id="prototype-dialog" class="prototype-dialog">
+    <div class="dialog-header"><div><span class="eyebrow">PREGLED PROTOTIPA</span><h2 id="dialog-title">Odluke za pregled</h2></div><button class="icon-button" data-action="close-dialog" aria-label="Zatvori">×</button></div>
+    <div id="dialog-content" class="dialog-content"></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="app.js"></script>
+</body>
+</html>
