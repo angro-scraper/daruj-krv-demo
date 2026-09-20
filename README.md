@@ -22,4 +22,10 @@ Interaktivni prototip obuhvata mobilnu aplikaciju za davaoce i operativni portal
 - izveštaji;
 - uloge i trag promena.
 
+## Radni prostori osoblja
+
+- zaseban prijem davaoca optimizovan za tablet ili telefon: prijava zaposlenog, smena, QR/rezervacija, dolazak bez termina i red čekanja;
+- zaseban medicinski radni prostor sa prikazom samo tekućih poseta dodeljene smene;
+- administrativni portal demonstrira jednokratne opozive pozivnice za osoblje; QR je samo aktivacija naloga, ne prijava.
+
 Svi podaci u prototipu su demonstracioni. Prototip ne donosi medicinske odluke i ne predstavlja produkcioni informacioni sistem.

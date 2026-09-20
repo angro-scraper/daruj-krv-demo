@@ -17,6 +17,8 @@
     </div>
     <div class="product-switch" role="group" aria-label="Izaberi deo sistema">
       <button class="switch-button active" data-mode="mobile">Aplikacija davaoca</button>
+      <button class="switch-button" data-mode="reception">Prijem davaoca</button>
+      <button class="switch-button" data-mode="medical">Medicinska služba</button>
       <button class="switch-button" data-mode="portal">Portal Zavoda</button>
     </div>
     <div class="prototype-meta"><span class="status-pill draft">Profesionalni UI</span><button class="text-button" data-action="show-decisions">Odluke za pregled</button></div>
@@ -57,6 +59,20 @@
         <div id="decision-checklist" class="checklist"></div>
         <button class="secondary-button" data-action="show-map">Prikaži mapu svih ekrana</button>
       </aside>
+    </section>
+
+    <section id="reception-view" class="workspace staff-workspace hidden" aria-label="Aplikacija za prijem davalaca">
+      <div class="staff-shell reception-shell">
+        <header class="staff-topbar"><div class="staff-brand"><span class="staff-mark">♥</span><div><strong>Daruj krv · Prijem</strong><small>Radni prostor za prijem davaoca</small></div></div><span class="demo-badge">DEMO · bez stvarnih podataka</span></header>
+        <div id="reception-screen" class="staff-screen" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section id="medical-view" class="workspace staff-workspace hidden" aria-label="Medicinski radni prostor">
+      <div class="staff-shell medical-shell">
+        <header class="staff-topbar"><div class="staff-brand"><span class="staff-mark medical-mark">+</span><div><strong>Daruj krv · Medicinska služba</strong><small>Ovlašćen pristup tekućim posetama</small></div></div><span class="demo-badge">DEMO · medicinski podaci nisu povezani</span></header>
+        <div id="medical-screen" class="staff-screen" aria-live="polite"></div>
+      </div>
     </section>
 
     <section id="portal-view" class="workspace portal-workspace hidden">
