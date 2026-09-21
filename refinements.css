@@ -788,8 +788,23 @@ body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
 .admin-entry .portal-map-pin.amber { background: #a8751a; }
 
 /* V12 — live map, visible actions and direct card navigation */
-.admin-entry .portal-street-map { min-height: 338px; overflow: hidden; border: 1px solid #cad9e2; border-radius: 12px; background: #eef4f6; box-shadow: inset 0 0 0 1px rgba(255,255,255,.6); }
-.admin-entry .dialog-street-map { min-height: 390px; margin: 14px 0; }
+.admin-entry .portal-street-map { height: 338px; min-height: 338px; overflow: hidden; border: 1px solid #cad9e2; border-radius: 12px; background: #eef4f6; box-shadow: inset 0 0 0 1px rgba(255,255,255,.6); }
+.admin-entry .dialog-street-map { height: 390px; min-height: 390px; margin: 14px 0; }
+.admin-entry .portal-street-map.leaflet-container { position: relative; overflow: hidden; outline: 0; }
+.admin-entry .portal-street-map .leaflet-pane,.admin-entry .portal-street-map .leaflet-tile,.admin-entry .portal-street-map .leaflet-marker-icon,.admin-entry .portal-street-map .leaflet-marker-shadow,.admin-entry .portal-street-map .leaflet-tile-container,.admin-entry .portal-street-map .leaflet-overlay-pane svg,.admin-entry .portal-street-map .leaflet-map-pane { position: absolute; top: 0; left: 0; }
+.admin-entry .portal-street-map .leaflet-pane { z-index: 400; }
+.admin-entry .portal-street-map .leaflet-tile-pane { z-index: 200; }
+.admin-entry .portal-street-map .leaflet-overlay-pane { z-index: 400; }
+.admin-entry .portal-street-map .leaflet-shadow-pane { z-index: 500; }
+.admin-entry .portal-street-map .leaflet-marker-pane { z-index: 600; }
+.admin-entry .portal-street-map .leaflet-tooltip-pane { z-index: 650; }
+.admin-entry .portal-street-map .leaflet-popup-pane { z-index: 700; }
+.admin-entry .portal-street-map .leaflet-tile { visibility: hidden; width: 256px !important; height: 256px !important; max-width: none !important; max-height: none !important; }
+.admin-entry .portal-street-map .leaflet-tile-loaded { visibility: inherit; }
+.admin-entry .portal-street-map .leaflet-control-container { position: absolute; inset: 0; pointer-events: none; z-index: 800; }
+.admin-entry .portal-street-map .leaflet-top,.admin-entry .portal-street-map .leaflet-bottom { position: absolute; z-index: 1000; pointer-events: none; }
+.admin-entry .portal-street-map .leaflet-bottom { bottom: 0; }.admin-entry .portal-street-map .leaflet-right { right: 0; }.admin-entry .portal-street-map .leaflet-control { position: relative; pointer-events: auto; }
+.admin-entry .portal-street-map .leaflet-control-attribution { padding: 2px 5px; color: #526d80; background: rgba(255,255,255,.84); font-size: 10px; }
 .admin-entry .portal-map-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 11px; color: #516d80; font-size: 12px; font-weight: 750; }
 .admin-entry .portal-map-toolbar > span { display: inline-flex; align-items: center; gap: 8px; }
 .admin-entry .portal-map-toolbar > span i { width: 8px; height: 8px; border-radius: 50%; background: #28745f; box-shadow: 0 0 0 4px #e5f3ee; }
