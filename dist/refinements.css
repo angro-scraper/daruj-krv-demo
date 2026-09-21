@@ -565,6 +565,272 @@ body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
 .role-dashboard-metrics{margin-bottom:17px}.role-task-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:17px}.role-task-card{position:relative;display:flex;flex-direction:column;min-height:215px;overflow:hidden;padding:18px;border:1px solid #e6ded9;border-radius:20px;background:linear-gradient(145deg,#fff,#fffaf8);box-shadow:0 9px 22px rgba(58,42,43,.038);transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease}.role-task-card::after{content:"";position:absolute;right:-31px;bottom:-38px;width:112px;height:112px;border:19px solid rgba(48,147,137,.075);border-radius:50%;pointer-events:none}.role-task-card:nth-child(2)::after{border-color:rgba(181,31,69,.07)}.role-task-card:nth-child(3)::after{border-color:rgba(221,163,37,.10)}.role-task-card:hover{border-color:#d8bfc1;transform:translateY(-3px);box-shadow:0 16px 30px rgba(58,42,43,.075)}.role-task-card>span{position:relative;z-index:1;display:grid;place-items:center;width:31px;height:31px;border-radius:10px;background:#e4f4f0;color:#287c74;font-size:.68rem;font-weight:900}.role-task-card:nth-child(2)>span{background:#f9e6ea;color:#a52f4c}.role-task-card:nth-child(3)>span{background:#fff0d0;color:#a66c0b}.role-task-card>div{position:relative;z-index:1;margin-top:17px}.role-task-card small{color:#7b7475;font-size:.61rem;font-weight:900;letter-spacing:.075em}.role-task-card h3{margin:5px 0 7px;color:#302b2e;font-size:1.05rem;letter-spacing:-.035em}.role-task-card p{margin:0;color:#6f696a;font-size:.76rem;line-height:1.5}.role-task-card .table-button{position:relative;z-index:1;align-self:flex-start;margin-top:auto}.role-boundary-note{display:grid;grid-template-columns:150px minmax(0,1fr);gap:15px;align-items:center;padding:17px 19px;border:1px solid #cbe4df;border-radius:18px;background:linear-gradient(105deg,#effaf8,#fffaf4);box-shadow:0 8px 19px rgba(47,102,94,.045)}.role-boundary-note b{color:#287d75;font-size:.77rem;letter-spacing:.035em}.role-boundary-note p{margin:0;color:#63706d;font-size:.77rem;line-height:1.5}
 @media (max-width:900px){.role-task-grid{grid-template-columns:1fr}.role-task-card{min-height:175px}.role-dashboard-hero{grid-template-columns:1fr}.role-dashboard-hero aside{width:min(100%,300px)}}
 @media (max-width:560px){.role-dashboard-hero{padding:20px}.role-dashboard-hero h2{font-size:1.75rem}.role-dashboard-hero aside{min-height:104px}.role-task-card{min-height:164px}.role-boundary-note{grid-template-columns:1fr;gap:6px}}
+
+/* V11 — institutional visual language for the Zavod portal.
+   The citizen application intentionally keeps its warmer palette; this scope applies only to /admin/. */
+.admin-entry {
+  --wine: #9a2639;
+  --wine-dark: #721b2a;
+  --red: #b7364a;
+  --coral: #ba5260;
+  --aqua: #1f7085;
+  --sun: #a8751a;
+  --green: #216c5a;
+  --ink: #162534;
+  --muted: #607080;
+  --line: #dbe3e9;
+  --bg: #f2f5f8;
+  --shadow: 0 12px 34px rgba(24, 47, 68, .08);
+  color: var(--ink);
+  background: #f2f5f8;
+}
+.admin-entry .admin-only-banner {
+  min-height: 44px;
+  padding: 9px 3.5vw;
+  background: #123650;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+.admin-entry .admin-only-banner span { color: #b9d0de; font-size: .61rem; }
+.admin-entry .admin-only-banner strong { font-size: .88rem; letter-spacing: .01em; }
+.admin-entry .demo-badge {
+  padding: 5px 9px;
+  border: 1px solid rgba(185,208,222,.35);
+  border-radius: 999px;
+  color: #e5eff4 !important;
+  font-size: .61rem !important;
+}
+.admin-entry .prototype-bar {
+  min-height: 72px;
+  padding-inline: 3.5vw;
+  background: rgba(255,255,255,.96);
+  border-color: #d9e2e8;
+  box-shadow: 0 4px 14px rgba(24,47,68,.04);
+}
+.admin-entry .prototype-title strong { color: #142f47; font-size: 1.08rem; }
+.admin-entry .prototype-title em { color: #667789; font-weight: 700; }
+.admin-entry .prototype-title .eyebrow { color: #315e7c; }
+.admin-entry .status-pill.draft { color: #294c66; background: #eaf1f6; }
+.admin-entry .text-button { color: #1f5d7e; }
+
+.admin-entry .portal-workspace {
+  background:
+    linear-gradient(rgba(255,255,255,.76),rgba(255,255,255,.76)),
+    linear-gradient(135deg,#f3f6f8 0%,#edf2f5 100%);
+}
+.admin-entry .portal-workspace::after { display: none; }
+.admin-entry .portal-sidebar {
+  padding: 23px 15px 18px;
+  background: #17334a;
+  box-shadow: 8px 0 24px rgba(19,42,61,.08);
+}
+.admin-entry .portal-brand { padding: 0 10px 21px; }
+.admin-entry .portal-brand strong { color: #fff; font-size: 1rem; }
+.admin-entry .portal-brand small { color: #b8c8d4; }
+.admin-entry .drop-mark { color: #e7edf1; }
+.admin-entry .drop-mark svg path:first-child { fill: #9a2639; stroke: #ca6978; }
+.admin-entry .portal-sidebar nav {
+  gap: 3px;
+  padding: 10px 0;
+  border-color: rgba(213,228,237,.15);
+}
+.admin-entry .portal-sidebar nav button {
+  min-height: 42px;
+  padding: 9px 11px;
+  border-radius: 8px;
+  color: #c6d3dc;
+  font-size: .84rem;
+}
+.admin-entry .portal-sidebar nav button::after { width: 3px; background: #c75060; }
+.admin-entry .portal-sidebar nav button:hover { color: #fff; background: rgba(255,255,255,.065); transform: none; }
+.admin-entry .portal-sidebar nav button.active {
+  color: #fff;
+  background: #28506b;
+  box-shadow: inset 3px 0 #c75060;
+}
+.admin-entry .portal-nav-icon { color: #a9bfcc; }
+.admin-entry .portal-sidebar nav button.active .portal-nav-icon { background: transparent; color: #fff; }
+.admin-entry .user-card { border-top-color: rgba(213,228,237,.18); }
+.admin-entry .user-card > span { color: #fff; background: #315a76; }
+.admin-entry .user-card .user-more { color: #b8c8d4; }
+
+.admin-entry .portal-main { max-width: 1680px; padding: 30px 3.5vw 64px; }
+.admin-entry .portal-main::before { display: none; }
+.admin-entry .portal-header {
+  margin: -4px -4px 23px;
+  padding: 15px 17px;
+  border: 1px solid #d9e3e9;
+  border-left: 4px solid #295d7c;
+  border-radius: 10px;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 5px 14px rgba(24,47,68,.035);
+  backdrop-filter: none;
+}
+.admin-entry .portal-header h1 { color: #17334a; font-size: clamp(1.85rem,2.6vw,2.35rem); letter-spacing: -.04em; }
+.admin-entry .portal-header p { color: #607080; }
+.admin-entry .portal-header .eyebrow,
+.admin-entry .panel-heading .eyebrow,
+.admin-entry .premium-panel-head .eyebrow { color: #315e7c; }
+.admin-entry .portal-header .eyebrow::before,
+.admin-entry .panel-heading .eyebrow::before { background: #315e7c; box-shadow: 0 0 0 4px rgba(49,94,124,.10); }
+
+.admin-entry .primary-button { background: #1c587b; box-shadow: 0 6px 14px rgba(28,88,123,.16); }
+.admin-entry .primary-button:hover { background: #16455f; }
+.admin-entry .secondary-button,
+.admin-entry .ghost-button,
+.admin-entry .table-button {
+  border-color: #cddbe4;
+  color: #234e6d;
+  background: #fff;
+  box-shadow: none;
+}
+.admin-entry .secondary-button:hover,
+.admin-entry .ghost-button:hover,
+.admin-entry .table-button:hover { border-color: #90afc2; background: #f4f8fa; }
+
+.admin-entry .premium-dashboard-hero,
+.admin-entry .role-dashboard-hero,
+.admin-entry .content-studio-hero,
+.admin-entry .command-hero,
+.admin-entry .medical-command-hero,
+.admin-entry .report-hero,
+.admin-entry .organization-banner,
+.admin-entry .content-command {
+  border-color: #d6e1e8;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(24,47,68,.045);
+}
+.admin-entry .premium-dashboard-hero { min-height: 280px; }
+.admin-entry .premium-dashboard-hero::after,
+.admin-entry .role-dashboard-hero::after,
+.admin-entry .premium-dashboard-hero .hero-orb,
+.admin-entry .role-dashboard-hero .role-dashboard-orb { display: none; }
+.admin-entry .premium-hero-copy h2,
+.admin-entry .role-dashboard-hero h2,
+.admin-entry .content-studio-hero h2,
+.admin-entry .command-hero h2,
+.admin-entry .medical-command-hero h2,
+.admin-entry .report-hero h2 { color: #17334a; }
+.admin-entry .premium-hero-copy p,
+.admin-entry .role-dashboard-hero p,
+.admin-entry .content-studio-hero p,
+.admin-entry .command-hero p,
+.admin-entry .medical-command-hero p,
+.admin-entry .report-hero p { color: #607080; }
+.admin-entry .hero-action-status {
+  border: 1px solid #244966;
+  border-radius: 14px;
+  background: #173a56;
+  box-shadow: none;
+}
+.admin-entry .capacity-ring { background: conic-gradient(#4f9b8d 0 46%,#c75060 46% 68%,#c59034 68% 82%,rgba(255,255,255,.13) 82% 100%); }
+.admin-entry .capacity-ring > div { background: #12324b; }
+
+.admin-entry .metric-card,
+.admin-entry .premium-metric,
+.admin-entry .panel,
+.admin-entry .premium-panel,
+.admin-entry .signal-card,
+.admin-entry .command-card,
+.admin-entry .organization-card,
+.admin-entry .communication-card,
+.admin-entry .governance-card,
+.admin-entry .news-work-card,
+.admin-entry .staff-card,
+.admin-entry .role-card,
+.admin-entry .login-card,
+.admin-entry .insight-card {
+  border-color: #d9e3e9;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 5px 14px rgba(24,47,68,.04);
+}
+.admin-entry .metric-card::after,
+.admin-entry .premium-metric::before,
+.admin-entry .signal-card::after,
+.admin-entry .panel::after,
+.admin-entry .premium-panel::after,
+.admin-entry .command-card::after,
+.admin-entry .organization-card::after,
+.admin-entry .communication-card::after,
+.admin-entry .governance-card::after { display: none; }
+.admin-entry .metric-card:hover,
+.admin-entry .panel:hover,
+.admin-entry .premium-panel:hover,
+.admin-entry .signal-card:hover,
+.admin-entry .command-card:hover { transform: none; border-color: #b7cad7; box-shadow: 0 8px 18px rgba(24,47,68,.07); }
+.admin-entry .premium-metric { min-height: 126px; }
+.admin-entry .premium-metric strong,
+.admin-entry .metric-card strong { color: #183a54; }
+.admin-entry .premium-metric i { height: 3px; }
+.admin-entry .premium-metric.wine { --metric: #9a2639; --metric-soft: #f7e9ec; }
+.admin-entry .premium-metric.aqua { --metric: #1f7085; --metric-soft: #e7f2f6; }
+.admin-entry .premium-metric.mint { --metric: #216c5a; --metric-soft: #e8f4ef; }
+.admin-entry .premium-metric.amber { --metric: #a8751a; --metric-soft: #fbf1dc; }
+.admin-entry .signal-card { min-height: 150px; }
+.admin-entry .signal-card.mint,
+.admin-entry .signal-card.amber,
+.admin-entry .signal-card.coral,
+.admin-entry .insight-card.aqua,
+.admin-entry .insight-card.amber { background: #fff; }
+.admin-entry .signal-card > span { color: #527087; }
+.admin-entry .signal-card p,
+.admin-entry .premium-metric small { color: #607080; }
+
+.admin-entry .activity-rail { border: 1px solid #1e4a67; border-radius: 14px; background: #173a56; box-shadow: 0 8px 19px rgba(20,54,80,.13); }
+.admin-entry .activity-rail .eyebrow { color: #b8d1df; }
+.admin-entry .activity-steps article.active > span { background: #bd4d5d; border-color: #bd4d5d; }
+.admin-entry .activity-steps article.done > span { background: #418d7e; border-color: #418d7e; }
+.admin-entry .portal-map-visual { border-color: #cedce4; border-radius: 12px; background: #edf4f3; }
+.admin-entry .map-context-card { border-color: #d5e1e7; border-radius: 10px; background: rgba(255,255,255,.96); box-shadow: 0 5px 12px rgba(24,47,68,.08); }
+.admin-entry .portal-map-pin { background: #9a2639; box-shadow: 0 5px 12px rgba(100,31,45,.18); }
+.admin-entry .portal-map-pin.aqua { background: #1f7085; }
+.admin-entry .portal-map-pin.amber { background: #a8751a; }
+
+.admin-entry .medical-boundary,
+.admin-entry .role-boundary-note,
+.admin-entry .role-workspace-strip,
+.admin-entry .super-admin-callout,
+.admin-entry .hierarchy-notice,
+.admin-entry .api-status { border-color: #d0dfe7; border-radius: 12px; background: #f8fbfc; box-shadow: none; }
+.admin-entry .medical-command-icon,
+.admin-entry .role-workspace-mark { border-radius: 10px; background: #1d6579; box-shadow: none; }
+.admin-entry .content-visual-stack strong,
+.admin-entry .command-score,
+.admin-entry .super-admin-mark { border-radius: 12px; background: #1d587b; box-shadow: none; }
+.admin-entry .editorial-visual,
+.admin-entry .cover-art,
+.admin-entry .editorial-version-stack,
+.admin-entry .mobile-story-preview { border-radius: 12px; background: #f4f8fa; }
+.admin-entry .editorial-card.aqua .editorial-visual { color: #1f7085; background: #edf6f8; }
+.admin-entry .editorial-card.sun .editorial-visual { color: #8e6418; background: #faf5e8; }
+.admin-entry .editorial-visual { color: #9a2639; background: #f9eff1; }
+.admin-entry .role-task-card,
+.admin-entry .medical-visit-card,
+.admin-entry .approval-card,
+.admin-entry .action-timeline article { border-color: #d9e3e9; border-radius: 11px; background: #fff; box-shadow: none; }
+.admin-entry .role-task-card::after,
+.admin-entry .approval-card::after { display: none; }
+.admin-entry .role-task-card:hover,
+.admin-entry .news-work-card:hover,
+.admin-entry .staff-card:hover,
+.admin-entry .medical-visit-card:hover,
+.admin-entry .approval-card:hover { transform: none; border-color: #b7cad7; box-shadow: 0 7px 16px rgba(24,47,68,.06); }
+.admin-entry .data-table th { color: #506a7b; background: #f4f7f9; }
+.admin-entry .data-table tbody tr:hover,
+.admin-entry .action-row:hover,
+.admin-entry .task-row:hover { background: #f6f9fb; }
+.admin-entry .pill.success { color: #1d6757; background: #e9f4ef; }
+.admin-entry .pill.warning { color: #855e15; background: #fbf1dc; }
+.admin-entry .pill.info { color: #1c6077; background: #e7f2f6; }
+
+@media (max-width: 760px) {
+  .admin-entry .admin-only-banner { padding-inline: 16px; }
+  .admin-entry .portal-main { padding-top: 20px; }
+  .admin-entry .portal-header { margin-inline: 0; }
+  .admin-entry .portal-sidebar { padding: 15px 13px 11px; }
+  .admin-entry .portal-sidebar nav button { border-radius: 7px; }
+}
 .achievement-hero{display:grid;grid-template-columns:68px 1fr;gap:14px;align-items:center;padding:15px;border-radius:18px;background:linear-gradient(135deg,#fff0f1,#fff8ed);border:1px solid #f2dce0}.achievement-count{display:grid;place-items:center;width:66px;height:66px;border-radius:22px;background:linear-gradient(135deg,var(--wine),var(--coral));color:#fff;font-size:1.8rem;font-weight:900;box-shadow:0 9px 19px rgba(181,31,69,.2)}.achievement-hero h3{margin:4px 0;font-size:1rem;line-height:1.2}.achievement-hero p{margin:0;color:var(--muted);font-size:.71rem;line-height:1.4}
 .giving-path{position:relative;margin:17px 0 14px;padding:2px 0}.path-line{position:absolute;left:15px;top:19px;bottom:18px;width:2px;background:linear-gradient(var(--coral),var(--aqua),#dbd9d4)}.path-item{position:relative;z-index:1;display:grid;grid-template-columns:32px 1fr;gap:10px;min-height:59px}.path-dot{display:grid;place-items:center;width:32px;height:32px;border:3px solid #fff;border-radius:50%;background:#d9d6d4;color:#766e70;font-size:.64rem;font-weight:900;box-shadow:0 3px 9px rgba(53,29,35,.12)}.path-item.earned .path-dot{background:var(--wine);color:#fff}.path-item.future .path-dot{background:var(--aqua);color:#fff;font-size:.6rem}.path-item div{padding-top:3px}.path-item small{display:block;color:var(--muted);font-size:.65rem}.path-item strong{font-size:.82rem}.path-item p{margin:2px 0;color:var(--muted);font-size:.68rem}
 .gratitude-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.gratitude-card{min-height:116px;padding:12px;border:1px solid #f0dadd;border-radius:15px;background:#fff8f8;color:var(--wine);text-align:left}.gratitude-card.coral{background:#fff6ec;border-color:#f3dfc8;color:#c56744}.gratitude-card span{display:block;margin-bottom:12px;font-size:1.2rem}.gratitude-card strong,.gratitude-card small{display:block}.gratitude-card strong{font-size:.77rem;line-height:1.3}.gratitude-card small{margin-top:5px;color:var(--muted);font-size:.65rem;line-height:1.35}
