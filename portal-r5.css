@@ -1,0 +1,16 @@
+/* R5: single-purpose icons, stable activation steps and balanced panels. */
+.admin-entry .command-score{display:grid;grid-template-columns:1fr;justify-items:start;align-content:center;gap:7px;min-width:172px;min-height:118px;padding:18px 20px}
+.admin-entry .command-score strong{grid-row:auto;font-size:34px;line-height:1}
+.admin-entry .command-score .table-button{grid-column:auto;margin:0}
+.admin-entry .activation-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:0;margin:0}
+.admin-entry .activation-steps button{position:relative;display:grid!important;grid-template-columns:34px minmax(0,1fr) 16px!important;align-items:center;gap:12px;min-height:76px;padding:14px 16px;text-align:left;overflow:hidden}
+.admin-entry .activation-steps button>span{position:static!important;inset:auto!important;transform:none!important;margin:0!important;align-self:center}
+.admin-entry .activation-steps button>div{min-width:0;display:grid;gap:3px}
+.admin-entry .activation-steps button>.work-icon{width:16px;height:16px;margin:0!important}
+.admin-entry .report-layout{align-items:stretch}
+.admin-entry .report-layout>.premium-panel{min-height:312px}
+.admin-entry .report-summary{min-height:92px}
+.admin-entry .symmetric-funnel button{min-height:42px;grid-template-columns:26px minmax(0,1fr) auto 16px}
+.admin-entry .it-service-grid>button,.admin-entry .it-checklist button{min-height:112px}
+.admin-entry .approval-summary .metric-card{cursor:pointer}
+@media(max-width:700px){.admin-entry .activation-steps{grid-template-columns:1fr}.admin-entry .command-score{width:100%;min-width:0}.admin-entry .report-layout>.premium-panel{min-height:auto}}
