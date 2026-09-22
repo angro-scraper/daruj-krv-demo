@@ -22,6 +22,29 @@
   </header>
 
   <main>
+    <section id="portal-auth" class="portal-auth-gate" aria-labelledby="portal-auth-title">
+      <div class="portal-auth-brand"><span class="drop-mark"><svg viewBox="0 0 32 38" aria-hidden="true"><path d="M16 1C11 10 3 17 3 25a13 13 0 0 0 26 0C29 17 21 10 16 1Z"/><path d="M9 25c1 5 4 8 9 9"/></svg></span><span>Portal Zavoda</span></div>
+      <div class="portal-auth-grid">
+        <section class="portal-auth-intro">
+          <span class="eyebrow">ZAŠTIĆEN PRISTUP PORTALU</span>
+          <h1 id="portal-auth-title">Upravljanje počinje odgovornim pristupom.</h1>
+          <p>Super admin otvara prvo radno okruženje, dodeljuje odgovornosti i kontroliše pristup ostalim ulogama. Medicinski tok ostaje posebno zaštićen.</p>
+          <div class="portal-auth-points"><span><b>01</b> Službeni identitet</span><span><b>02</b> MFA i uređaj</span><span><b>03</b> Audit svake promene</span></div>
+        </section>
+        <form id="super-admin-login" class="portal-auth-card">
+          <span class="small-label">SUPER ADMIN · PRIJAVA</span>
+          <h2>Dobro došli u Portal Zavoda</h2>
+          <p>Prijavite se službenim nalogom da otvorite kontrolni centar.</p>
+          <label><span>Službena e-pošta</span><input type="email" autocomplete="email" placeholder="ime@zavod.rs" required></label>
+          <label><span>Lozinka</span><input type="password" autocomplete="current-password" placeholder="Unesite lozinku" required></label>
+          <button class="primary-button" type="submit">Prijavi se u portal</button>
+          <div class="portal-auth-divider"><span>ili</span></div>
+          <button class="ghost-button" type="button" data-action="open-super-admin-registration">Kreiraj prvi Super admin nalog</button>
+          <small>Demonstracioni portal ne proverava niti čuva poverljive podatke.</small>
+        </form>
+      </div>
+    </section>
+
     <section id="mobile-view" class="workspace mobile-workspace hidden" aria-hidden="true">
       <aside class="screen-index" aria-label="Ekrani mobilne aplikacije">
         <div class="index-intro">
@@ -59,7 +82,13 @@
     </section>
 
     <section id="portal-view" class="workspace portal-workspace hidden">
-      <aside class="portal-sidebar">
+      <div class="portal-topbar">
+        <button class="portal-menu-toggle" data-action="toggle-portal-menu" aria-expanded="false" aria-controls="portal-nav" aria-label="Otvori navigaciju"><span></span><span></span><span></span></button>
+        <div class="portal-topbar-brand"><span class="drop-mark"><svg viewBox="0 0 32 38" aria-hidden="true"><path d="M16 1C11 10 3 17 3 25a13 13 0 0 0 26 0C29 17 21 10 16 1Z"/><path d="M9 25c1 5 4 8 9 9"/></svg></span><div><strong>Portal Zavoda</strong><small>Kontrolni centar</small></div></div>
+        <button class="portal-topbar-account" data-action="open-portal-profile" aria-label="Otvori Super admin profil"><span>SA</span><div><strong>Super admin</strong><small>Zaštićena sesija</small></div></button>
+      </div>
+      <button class="portal-nav-scrim" data-action="close-portal-menu" aria-label="Zatvori navigaciju" tabindex="-1"></button>
+      <aside class="portal-sidebar" aria-hidden="true" inert>
         <div class="portal-brand"><span class="drop-mark"><svg viewBox="0 0 32 38" aria-hidden="true"><path d="M16 1C11 10 3 17 3 25a13 13 0 0 0 26 0C29 17 21 10 16 1Z"/><path d="M9 25c1 5 4 8 9 9"/></svg></span><div><strong>Portal Zavoda</strong><small>Sigurno radno okruženje</small></div></div>
         <nav id="portal-nav" aria-label="Navigacija portala">
           <button data-portal-screen="dashboard"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span>Pregled</button>
@@ -83,7 +112,7 @@
           <button data-portal-screen="access"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6Z"/><path d="m9 12 2 2 4-4"/></svg></span>Uloge i trag promena</button>
           <button data-portal-screen="integrations"><span class="portal-nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7 7 5a3 3 0 0 0-4 4l2 2M15 17l2 2a3 3 0 0 0 4-4l-2-2M8 16l8-8"/></svg></span>API i integracije</button>
         </nav>
-        <button class="user-card" data-action="open-portal-profile" aria-label="Otvori podatke prijavljenog korisnika"><span>JM</span><div><strong>Jelena Marković</strong><small>Koordinator akcija</small></div><span class="user-more" aria-hidden="true">•••</span></button>
+        <button class="user-card" data-action="open-portal-profile" aria-label="Otvori podatke prijavljenog korisnika"><span>SA</span><div><strong>Super admin</strong><small>Kontrola pristupa</small></div><span class="user-more" aria-hidden="true">•••</span></button>
       </aside>
       <div id="portal-screen" class="portal-main" aria-live="polite"></div>
     </section>
