@@ -7,11 +7,23 @@
   <title>Kapi Života | Portal Zavoda</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%238B1E2D' d='M32 4C24 17 14 27 14 40a18 18 0 0 0 36 0C50 27 40 17 32 4Z'/%3E%3Cpath fill='white' opacity='.86' d='M24 42c1.5 6 6 9 12 9 3 0 5.5-.8 7.5-2.2A14 14 0 0 1 20 39c0-3 1-6 3-9-1 5-1 8 1 12Z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="../refinements.css?v=20260922-dashboard-control">
+  <link rel="stylesheet" href="../refinements.css?v=20260922-premium-affordances">
   <style>
     .dashboard-icon-button{display:inline-flex;align-items:center;gap:8px;min-height:30px;width:auto;height:auto;padding:6px 9px;border-color:rgba(255,255,255,.24);border-radius:8px;background:rgba(255,255,255,.08);color:transparent;font-size:0;font-weight:800;white-space:nowrap}
     .dashboard-icon-button::after{content:"Detalj akcije  →";color:#fff;font-size:.65rem}
     .dashboard-icon-button:hover{background:rgba(255,255,255,.16)}
+    /* Jedinstven, diskretan jezik navigacije kroz ceo portal. */
+    .admin-entry #portal-screen .table-button b{display:inline-grid;place-items:center;width:17px;height:17px;margin-left:5px;border-radius:50%;background:#eaf2f4;color:#245b72;font-size:.76rem;line-height:1;vertical-align:middle;transition:transform .18s ease,background .18s ease,color .18s ease}
+    .admin-entry #portal-screen .table-button:hover b{background:#245b72;color:#fff;transform:translateX(2px)}
+    .admin-entry #portal-screen .hero-text-button span{display:inline-grid;place-items:center;width:19px;height:19px;margin-left:6px;border:1px solid currentColor;border-radius:50%;font-size:.76rem;line-height:1;vertical-align:middle;transition:transform .18s ease,background .18s ease,color .18s ease}
+    .admin-entry #portal-screen .hero-text-button:hover span{background:#8f2946;color:#fff;transform:translateX(2px)}
+    .admin-entry .dashboard-map-footer button{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:6px 9px;border:1px solid #cbdde1;border-radius:8px;background:#fff;color:#245b72;font-size:.66rem;font-weight:850;box-shadow:0 2px 5px rgba(28,71,93,.05);transition:all .18s ease}
+    .admin-entry .dashboard-map-footer button:hover{border-color:#86aeb9;background:#eff8f7;transform:translateY(-1px)}
+    .admin-entry .dashboard-priority-row>b{display:grid;place-items:center;width:22px;height:22px;border:1px solid #d7e5e8;border-radius:7px;background:#f7fbfb;color:#346a7e;font-size:.82rem;line-height:1;transition:all .18s ease}
+    .admin-entry .dashboard-priority-row:hover>b{border-color:#2d6f85;background:#2d6f85;color:#fff;transform:translateX(2px)}
+    .admin-entry .journey-steps article>button{display:grid;place-items:center;width:30px;height:30px;border:1px solid rgba(202,224,232,.26);border-radius:9px;background:rgba(255,255,255,.08);color:#d9eef2;font-size:.8rem;transition:all .18s ease}
+    .admin-entry .journey-steps article>button:hover{border-color:#85cabe;background:rgba(115,195,178,.22);color:#fff;transform:translate(2px,-2px)}
+    .admin-entry .role-login-list button b,.admin-entry .map-location-list button b{transition:transform .18s ease}.admin-entry .role-login-list button:hover b,.admin-entry .map-location-list button:hover b{transform:translateX(3px)}
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTR9BMY=" crossorigin="">
 </head>
@@ -129,6 +141,6 @@
   </dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="../app.js?v=20260922-dashboard-control"></script>
+  <script src="../app.js?v=20260922-premium-affordances"></script>
 </body>
 </html>
