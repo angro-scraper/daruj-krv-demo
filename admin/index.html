@@ -7,14 +7,17 @@
   <title>Kapi Života | Portal Zavoda</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%238B1E2D' d='M32 4C24 17 14 27 14 40a18 18 0 0 0 36 0C50 27 40 17 32 4Z'/%3E%3Cpath fill='white' opacity='.86' d='M24 42c1.5 6 6 9 12 9 3 0 5.5-.8 7.5-2.2A14 14 0 0 1 20 39c0-3 1-6 3-9-1 5-1 8 1 12Z'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="../refinements.css?v=20260922-premium-affordances">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../refinements.css?v=20260922-premium-navigation">
   <style>
     .dashboard-icon-button{display:inline-flex;align-items:center;gap:8px;min-height:30px;width:auto;height:auto;padding:6px 9px;border-color:rgba(255,255,255,.24);border-radius:8px;background:rgba(255,255,255,.08);color:transparent;font-size:0;font-weight:800;white-space:nowrap}
     .dashboard-icon-button::after{content:"Detalj akcije  →";color:#fff;font-size:.65rem}
     .dashboard-icon-button:hover{background:rgba(255,255,255,.16)}
     /* Jedinstven, diskretan jezik navigacije kroz ceo portal. */
-    .admin-entry #portal-screen .table-button b{display:inline-grid;place-items:center;width:17px;height:17px;margin-left:5px;border-radius:50%;background:#eaf2f4;color:#245b72;font-size:.76rem;line-height:1;vertical-align:middle;transition:transform .18s ease,background .18s ease,color .18s ease}
-    .admin-entry #portal-screen .table-button:hover b{background:#245b72;color:#fff;transform:translateX(2px)}
+    .admin-entry{font-family:"Manrope",Inter,ui-sans-serif,system-ui,sans-serif}.admin-entry h1,.admin-entry h2,.admin-entry h3,.admin-entry strong{font-family:"Manrope",Inter,ui-sans-serif,system-ui,sans-serif;letter-spacing:-.025em}.admin-entry .eyebrow,.admin-entry small{letter-spacing:.055em}
+    .admin-entry #portal-screen .table-button{display:inline-flex;align-items:center;gap:8px;font-family:inherit;font-weight:800}.admin-entry #portal-screen .table-button b{display:none!important}.admin-entry #portal-screen .button-arrow{display:inline-grid;place-items:center;width:19px;height:19px;margin-left:2px;border-radius:6px;background:#edf4f6;color:#2b6680;transition:transform .18s ease,background .18s ease,color .18s ease}.admin-entry #portal-screen .button-arrow svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.2}.admin-entry #portal-screen .table-button:hover .button-arrow{background:#245b72;color:#fff;transform:translateX(2px)}
     .admin-entry #portal-screen .hero-text-button span{display:inline-grid;place-items:center;width:19px;height:19px;margin-left:6px;border:1px solid currentColor;border-radius:50%;font-size:.76rem;line-height:1;vertical-align:middle;transition:transform .18s ease,background .18s ease,color .18s ease}
     .admin-entry #portal-screen .hero-text-button:hover span{background:#8f2946;color:#fff;transform:translateX(2px)}
     .admin-entry .dashboard-map-footer button{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:6px 9px;border:1px solid #cbdde1;border-radius:8px;background:#fff;color:#245b72;font-size:.66rem;font-weight:850;box-shadow:0 2px 5px rgba(28,71,93,.05);transition:all .18s ease}
@@ -141,6 +144,6 @@
   </dialog>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="../app.js?v=20260922-premium-affordances"></script>
+  <script src="../app.js?v=20260922-premium-navigation"></script>
 </body>
 </html>
