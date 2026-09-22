@@ -308,6 +308,7 @@ function renderPortal(screen=state.portalScreen){
   portalScreen.innerHTML=roleWorkspaceStrip()+(portalTemplates[screen]?.()||portalTemplates.dashboard());
   decoratePortalActions();
   if(screen==='dashboard'&&state.activePortalRole==='super_admin')requestAnimationFrame(()=>renderPortalStreetMap('portal-dashboard-street-map'));
+  setPortalMenu(false);
   history.replaceState(null,'',`#portal/${screen}`);
 }
 
