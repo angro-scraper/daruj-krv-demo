@@ -17,5 +17,19 @@
    marker hit area explicitly. Without this rule SVG action markers render but
    cannot be selected. */
 .admin-entry .portal-street-map .leaflet-interactive{pointer-events:visiblePainted;cursor:pointer}
-.admin-entry .portal-street-map .leaflet-popup-content button{margin-top:9px;cursor:pointer}
+/* Leaflet's full popup skin is not bundled with the scoped map CSS. Keep the
+   information card opaque and above the tiles so text is never lost on the map. */
+.admin-entry .portal-street-map .leaflet-popup{position:absolute;margin-bottom:14px;text-align:left;pointer-events:auto}
+.admin-entry .portal-street-map .leaflet-popup-content-wrapper{position:relative;padding:0!important;border:1px solid #c6d9e1!important;border-radius:12px!important;background:#fff!important;color:#173a56!important;box-shadow:0 14px 30px rgba(20,53,77,.24)!important}
+.admin-entry .portal-street-map .leaflet-popup-content{margin:0!important;padding:15px 38px 14px 15px!important;line-height:1.35!important}
+.admin-entry .portal-street-map .leaflet-popup-tip-container{position:absolute;bottom:-16px;left:50%;width:32px;height:16px;margin-left:-16px;overflow:hidden;pointer-events:none}
+.admin-entry .portal-street-map .leaflet-popup-tip{display:block;width:16px;height:16px;margin:-8px auto 0;transform:rotate(45deg);border-right:1px solid #c6d9e1;border-bottom:1px solid #c6d9e1;background:#fff;box-shadow:4px 4px 10px rgba(20,53,77,.08)}
+.admin-entry .portal-street-map .leaflet-popup-close-button{position:absolute!important;top:8px!important;right:9px!important;z-index:2;width:24px!important;height:24px!important;padding:0!important;border:0!important;border-radius:7px!important;background:#eef5f7!important;color:#45697d!important;font-size:17px!important;line-height:22px!important;text-align:center!important;cursor:pointer!important}
+.admin-entry .portal-street-map .leaflet-popup-close-button:hover{background:#dcecf0!important;color:#173a56!important}
+.admin-entry .portal-street-map .portal-map-popup{display:grid;gap:4px;min-width:192px;color:#173a56}
+.admin-entry .portal-street-map .portal-map-popup strong{padding-right:4px;color:#173a56;font-size:14px;line-height:1.25}
+.admin-entry .portal-street-map .portal-map-popup span{color:#4d6c7c;font-size:11px;font-weight:750}
+.admin-entry .portal-street-map .portal-map-popup small{color:#657d8b;font-size:11px;line-height:1.38}
+.admin-entry .portal-street-map .leaflet-popup-content button{width:max-content;margin-top:7px;padding:7px 10px;border:1px solid #b9d4dc;border-radius:8px;background:#eff8f8;color:#1c6477;font:inherit;font-size:11px;font-weight:850;line-height:1;cursor:pointer}
+.admin-entry .portal-street-map .leaflet-popup-content button:hover{border-color:#1f7085;background:#1f7085;color:#fff}
 @media(max-width:700px){.admin-entry .activation-steps{grid-template-columns:1fr}.admin-entry .command-score{width:100%;min-width:0}.admin-entry .report-layout>.premium-panel{min-height:auto}}
