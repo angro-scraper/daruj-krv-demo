@@ -819,6 +819,10 @@ body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
 .admin-entry .dialog-map-intro { padding: 2px 0 4px; }
 .admin-entry .dialog-map-intro h3 { margin: 4px 0 5px; color: #183a54; }
 .admin-entry .dialog-map-intro p { margin: 0; color: #607080; line-height: 1.55; }
+.admin-entry .map-search-bar { display: grid; grid-template-columns: minmax(0,1fr) auto auto; align-items: center; gap: 9px; margin: 14px 0 12px; }
+.admin-entry .map-search-bar input { min-width: 0; height: 42px; padding: 0 13px; border: 1px solid #bfd3dc; border-radius: 9px; color: #183a54; background: #fff; font: inherit; outline: 0; }
+.admin-entry .map-search-bar input::placeholder { color: #758995; }
+.admin-entry .map-search-bar input:focus { border-color: #1f7085; box-shadow: 0 0 0 3px rgba(31,112,133,.12); }
 .admin-entry .map-location-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
 .admin-entry .map-location-list button { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 10px; min-height: 70px; padding: 12px; border: 1px solid #d9e4e9; border-radius: 10px; color: #183a54; background: #fff; text-align: left; font: inherit; cursor: pointer; transition: border-color .16s ease,box-shadow .16s ease,transform .16s ease; }
 .admin-entry .map-location-list button:hover,.admin-entry .map-location-list button:focus-visible { border-color: #8fb4c2; box-shadow: 0 5px 15px rgba(23,51,74,.08); outline: 0; transform: translateY(-1px); }
@@ -833,7 +837,7 @@ body { font-feature-settings: "kern" 1, "liga" 1, "tnum" 1; }
 .admin-entry .primary-button .action-icon { color: #fff; background: rgba(255,255,255,.18); }
 .admin-entry .clickable-card { cursor: pointer; transition: border-color .16s ease,box-shadow .16s ease,transform .16s ease; }
 .admin-entry .clickable-card:hover,.admin-entry .clickable-card:focus-visible { border-color: #8fb3c1; box-shadow: 0 8px 19px rgba(23,51,74,.08); outline: 0; transform: translateY(-2px); }
-@media (max-width:760px){.admin-entry .portal-street-map{min-height:275px}.admin-entry .dialog-street-map{min-height:300px}.admin-entry .map-location-list{grid-template-columns:1fr}.admin-entry .portal-map-toolbar{align-items:flex-start;flex-direction:column}}
+@media (max-width:760px){.admin-entry .portal-street-map{height:275px;min-height:275px}.admin-entry .dialog-street-map{height:300px;min-height:300px}.admin-entry .map-location-list{grid-template-columns:1fr}.admin-entry .portal-map-toolbar{align-items:flex-start;flex-direction:column}.admin-entry .map-search-bar{grid-template-columns:1fr 1fr}.admin-entry .map-search-bar input{grid-column:1/-1}.admin-entry .map-search-bar button{width:100%}}
 
 .admin-entry .medical-boundary,
 .admin-entry .role-boundary-note,
