@@ -1,4 +1,5 @@
 /* Figma r2: the portal now uses the Figma navigation shell on desktop. */
+.admin-entry .admin-only-banner,.admin-entry .prototype-bar{display:none!important}.admin-entry>main{min-height:100vh!important}
 .admin-entry .portal-workspace{display:grid!important;grid-template-columns:256px minmax(0,1fr)!important;grid-template-rows:72px minmax(0,1fr)!important;min-height:100vh!important;background:#f6f8fb!important}
 .admin-entry .portal-topbar{grid-column:1/-1!important;grid-row:1!important;display:grid!important;grid-template-columns:256px minmax(0,1fr) auto!important;align-items:center!important;min-height:72px!important;padding:0 28px 0 0!important;background:#fff!important;border-bottom:1px solid #dde3ed!important;box-shadow:0 1px 0 rgba(13,17,23,.02)!important;position:sticky!important;top:0!important;z-index:30!important}
 .admin-entry .portal-topbar::before{content:"OPERATIVNI PORTAL";display:flex;align-items:center;align-self:stretch;padding:0 22px;background:#050f1e;border-right:1px solid rgba(255,255,255,.08);color:#d9e6f4;font-family:"JetBrains Mono",monospace;font-size:.66rem;font-weight:600;letter-spacing:.13em}
