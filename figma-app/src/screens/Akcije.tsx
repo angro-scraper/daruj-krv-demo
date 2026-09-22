@@ -165,7 +165,7 @@ export default function Akcije() {
                     tabIndex={hasAkcija ? 0 : undefined}
                     onClick={() => { if (hasAkcija) { setSelAkcija(hasAkcija); setDetaljiModal(true) } }}
                     onKeyDown={e => { if (hasAkcija && (e.key === 'Enter' || e.key === ' ')) { setSelAkcija(hasAkcija); setDetaljiModal(true) } }}
-                    className="h-16 sm:h-20 rounded-lg flex flex-col items-center justify-center text-xs cursor-pointer hover:opacity-80 transition-opacity"
+                    className={`h-16 sm:h-20 rounded-lg flex flex-col items-center justify-center text-xs transition-opacity ${hasAkcija ? 'cursor-pointer hover:opacity-80' : ''}`}
                     style={{
                       background: isToday ? C.navy : hasAkcija ? C.teal + '22' : C.s50,
                       border: hasAkcija && !isToday ? `1px solid ${C.teal}44` : '1px solid transparent',

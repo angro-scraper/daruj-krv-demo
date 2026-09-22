@@ -144,7 +144,7 @@ const TITLES: Record<Screen, { title: string; subtitle?: string }> = {
 // ── Screen resolver ────────────────────────────────────────────────────────
 function resolveScreen(screen: Screen, onNav: (s: Screen) => void, uloga: string) {
   switch (screen) {
-    case 'kontrolni_centar': return <KontrolniCentar onNav={onNav} />
+    case 'kontrolni_centar': return <KontrolniCentar onNav={onNav} uloga={uloga as Korisnik['uloga']} />
     case 'akcije': return <Akcije />
     case 'prijem_davalaca': return <PrijemDavalaca />
     case 'medicinska_sluzba': return <MedicinskaSluzbaStu uloga={uloga} />
@@ -159,11 +159,11 @@ function resolveScreen(screen: Screen, onNav: (s: Screen) => void, uloga: string
     case 'api_integracije': return <APIIntegracije />
     case 'moja_smena': return <MojaSmena />
     case 'klinicki_sto': return <KlinickiSto />
-    case 'audit_log': return <HijerarhijaAudit initialTab="audit" />
+    case 'audit_log': return <HijerarhijaAudit initialTab="audit" auditOnly />
     case 'tech_config': return <APIIntegracije initialTab="monitoring" />
     case 'incidenti': return <APIIntegracije initialTab="incidenti" />
     case 'raspored': return <Raspored />
-    default: return <KontrolniCentar onNav={onNav} />
+    default: return <KontrolniCentar onNav={onNav} uloga={uloga as Korisnik['uloga']} />
   }
 }
 
@@ -173,7 +173,7 @@ function defaultScreen(uloga: string): Screen {
     case 'prijem': return 'moja_smena'
     case 'medicinska': return 'klinicki_sto'
     case 'pr_sadrzaj': return 'redakcija'
-    case 'revizor': return 'hijerarhija_audit'
+    case 'revizor': return 'audit_log'
     default: return 'kontrolni_centar'
   }
 }

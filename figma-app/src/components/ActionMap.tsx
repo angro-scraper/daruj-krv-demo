@@ -23,7 +23,7 @@ function actionPoint(action: Akcija, index: number): [number, number] {
   return [center[0] + shift, center[1] - shift]
 }
 
-export function ActionMap({ actions, onOpenActions }: { actions: Akcija[]; onOpenActions: () => void }) {
+export function ActionMap({ actions, onOpenActions }: { actions: Akcija[]; onOpenActions?: () => void }) {
   const mapElement = useRef<HTMLDivElement>(null)
   const [selectedId, setSelectedId] = useState<string | null>(actions.find(action => action.status === 'aktivna')?.id ?? actions[0]?.id ?? null)
   const selected = actions.find(action => action.id === selectedId) ?? actions[0]
@@ -56,7 +56,7 @@ export function ActionMap({ actions, onOpenActions }: { actions: Akcija[]; onOpe
 
   return (
     <Card>
-      <CardHeader title="Mapa akcija" subtitle="Izaberite tačku za podatke o akciji" action={
+      <CardHeader title="Mapa akcija" subtitle="Izaberite tačku za podatke o akciji" action={onOpenActions &&
         <button onClick={onOpenActions} className="text-xs font-medium" style={{ color: C.teal }}>Sve akcije →</button>
       } />
       <div className="grid lg:grid-cols-[minmax(0,1.8fr)_minmax(260px,1fr)]">
@@ -78,7 +78,7 @@ export function ActionMap({ actions, onOpenActions }: { actions: Akcija[]; onOpe
                 ['Donacije', String(selected.donacije)],
               ].map(([label, value]) => <div key={label} className="min-w-0"><dt style={{ color: C.ink3 }}>{label}</dt><dd className="font-medium break-words mt-0.5" style={{ color: C.ink7 }}>{value}</dd></div>)}
             </dl>
-            <button onClick={onOpenActions} className="mt-auto h-9 px-4 rounded-lg text-sm font-medium self-start" style={{ background: C.teal, color: C.white }}>Otvori akcije →</button>
+            {onOpenActions && <button onClick={onOpenActions} className="mt-auto h-9 px-4 rounded-lg text-sm font-medium self-start" style={{ background: C.teal, color: C.white }}>Otvori akcije →</button>}
           </> : <p className="text-sm" style={{ color: C.ink3 }}>Nema akcija za prikaz.</p>}
         </div>
       </div>

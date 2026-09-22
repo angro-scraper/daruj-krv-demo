@@ -6,6 +6,19 @@ import { Ic } from '../components/Icons'
 const POZICIJE = ['Sve pozicije', 'Lekar', 'Medicinski tehničar', 'Koordinator', 'Referent za prijem', 'PR menadžer', 'IT administrator', 'Revizor']
 const USERS_KEY = 'portal-figma-users-v1'
 const INVITES_KEY = 'kapi-zivota.staff-invites'
+const POSITIONS_KEY = 'portal-demo-positions-v1'
+type Position = { poz: string; uloga: Role; popunjeno: number; slobodnih: number }
+const INITIAL_POSITIONS: Position[] = [
+  { poz: 'Lekar', uloga: 'medicinska', popunjeno: 3, slobodnih: 1 },
+  { poz: 'Medicinski tehničar', uloga: 'prijem', popunjeno: 5, slobodnih: 2 },
+  { poz: 'Koordinator akcija', uloga: 'koordinator', popunjeno: 3, slobodnih: 0 },
+  { poz: 'Referent za prijem', uloga: 'prijem', popunjeno: 2, slobodnih: 1 },
+  { poz: 'PR menadžer', uloga: 'pr_sadrzaj', popunjeno: 1, slobodnih: 0 },
+  { poz: 'IT administrator', uloga: 'admin', popunjeno: 1, slobodnih: 0 },
+]
+function loadPositions(): Position[] {
+  try { const saved = JSON.parse(localStorage.getItem(POSITIONS_KEY) || 'null'); return Array.isArray(saved) ? saved : INITIAL_POSITIONS } catch { return INITIAL_POSITIONS }
+}
 type Invite = { name: string; email: string; role: string; scope: string; sent: string; status?: string }
 const DEMO_REGISTRATIONS: Invite[] = [
   { name: 'Dragan Popović', email: 'd.popovic@zavodbk.rs', role: 'prijem', scope: 'Beograd', sent: '19. sep 2026', status: 'odobreno' },
@@ -41,6 +54,29 @@ export default function Osoblje() {
   const [noviModal, setNoviModal] = useState(false)
   const [inviteModal, setInviteModal] = useState(false)
   const [confirmDel, setConfirmDel] = useState(false)
+  const [positions, setPositions] = useState(loadPositions)
+  const [positionModal, setPositionModal] = useState(false)
+  const [oldPositionName, setOldPositionName] = useState<string | null>(null)
+  const [positionName, setPositionName] = useState('')
+  const [positionRole, setPositionRole] = useState<Role>('prijem')
+  const [positionVacancies, setPositionVacancies] = useState('0')
+  const openPosition = (position?: Position) => {
+    setFeedback('')
+    setOldPositionName(position?.poz || null); setPositionName(position?.poz || '')
+    setPositionRole(position?.uloga || 'prijem'); setPositionVacancies(String(position?.slobodnih ?? 0))
+    setPositionModal(true)
+  }
+  const savePosition = () => {
+    const name = positionName.trim()
+    const vacancies = Number(positionVacancies)
+    if (!name || !Number.isInteger(vacancies) || vacancies < 0) { setFeedback('Unesite naziv pozicije i nenegativan ceo broj slobodnih mesta.'); return }
+    if (positions.some(p => p.poz.toLowerCase() === name.toLowerCase() && p.poz !== oldPositionName)) { setFeedback('Pozicija sa tim nazivom već postoji.'); return }
+    const old = positions.find(p => p.poz === oldPositionName)
+    const item: Position = { poz: name, uloga: positionRole, popunjeno: old?.popunjeno || 0, slobodnih: vacancies }
+    const next = old ? positions.map(p => p.poz === old.poz ? item : p) : [...positions, item]
+    setPositions(next); localStorage.setItem(POSITIONS_KEY, JSON.stringify(next)); setPositionModal(false)
+    setFeedback('Pozicija je sačuvana u lokalnoj demo evidenciji. Ovlašćenja se ne menjaju bez serverske autorizacije.')
+  }
 
   const korisnici = allUsers.filter(k => {
     const matchSearch = `${k.ime} ${k.prezime} ${k.email}`.toLowerCase().includes(search.toLowerCase())
@@ -186,16 +222,9 @@ export default function Osoblje() {
       {tab === 'pozicije' && (
         <div className="grid lg:grid-cols-2 gap-5">
           <Card>
-            <CardHeader title="Pozicije u sistemu" action={<Btn size="sm"><Ic.Plus /> Dodaj</Btn>} />
+            <CardHeader title="Pozicije u sistemu" action={<Btn size="sm" onClick={() => openPosition()}><Ic.Plus /> Dodaj</Btn>} />
             <Table headers={['Pozicija', 'Uloga', 'Popunjeno', 'Slobodnih', '']}>
-              {[
-                { poz: 'Lekar', uloga: 'medicinska', popunjeno: 3, slobodnih: 1 },
-                { poz: 'Medicinski tehničar', uloga: 'prijem', popunjeno: 5, slobodnih: 2 },
-                { poz: 'Koordinator akcija', uloga: 'koordinator', popunjeno: 3, slobodnih: 0 },
-                { poz: 'Referent za prijem', uloga: 'prijem', popunjeno: 2, slobodnih: 1 },
-                { poz: 'PR menadžer', uloga: 'pr_sadrzaj', popunjeno: 1, slobodnih: 0 },
-                { poz: 'IT administrator', uloga: 'admin', popunjeno: 1, slobodnih: 0 },
-              ].map(({ poz, uloga, popunjeno, slobodnih }) => (
+              {positions.map(({ poz, uloga, popunjeno, slobodnih }) => (
                 <TR key={poz}>
                   <TD><span className="font-medium">{poz}</span></TD>
                   <TD><RoleBadge uloga={uloga as any} /></TD>
@@ -203,7 +232,7 @@ export default function Osoblje() {
                   <TD>
                     <span className="text-xs font-mono" style={{ color: slobodnih > 0 ? C.burgundy : C.ink3, fontFamily: 'JetBrains Mono, monospace' }}>{slobodnih}</span>
                   </TD>
-                  <TD><Btn variant="ghost" size="sm"><Ic.Edit /></Btn></TD>
+                  <TD><Btn variant="ghost" size="sm" title={`Uredi ${poz}`} onClick={() => openPosition(positions.find(p => p.poz === poz))}><Ic.Edit /></Btn></TD>
                 </TR>
               ))}
             </Table>
@@ -310,6 +339,17 @@ export default function Osoblje() {
       </Modal>
 
       {/* Pozivnica */}
+      <Modal open={positionModal} onClose={() => setPositionModal(false)} title={oldPositionName ? 'Izmeni poziciju' : 'Dodaj poziciju'}>
+        <div className="flex flex-col gap-4">
+          {feedback && <p role="status" className="text-xs" style={{ color: C.burgundy }}>{feedback}</p>}
+          <Input label="Naziv pozicije" value={positionName} onChange={setPositionName} />
+          <Select label="Uloga u portalu" options={Object.values(ROLE_LABELS)} value={ROLE_LABELS[positionRole]} onChange={label => setPositionRole((Object.entries(ROLE_LABELS).find(([, value]) => value === label)?.[0] || 'prijem') as Role)} />
+          <Input label="Slobodnih mesta" type="number" value={positionVacancies} onChange={setPositionVacancies} />
+          <p className="text-xs" style={{ color: C.ink5 }}>Ovo menja samo demo evidenciju pozicija, ne stvarna ovlašćenja korisnika.</p>
+          <div className="flex justify-end gap-2"><Btn variant="secondary" onClick={() => setPositionModal(false)}>Otkaži</Btn><Btn onClick={savePosition}>Sačuvaj</Btn></div>
+        </div>
+      </Modal>
+
       <Modal open={inviteModal} onClose={() => setInviteModal(false)} title="Pošalji pozivnicu">
         <div className="flex flex-col gap-4">
           <Input label="Email adresa" type="email" placeholder="novi.korisnik@zavodbk.rs" value={formEmail} onChange={setFormEmail} />

@@ -37,12 +37,12 @@ export function setScreenHash(screen: Screen) {
 
 export const ALLOWED_SCREENS: Record<Role, Screen[]> = {
   super_admin: Object.keys(ROUTE_BY_SCREEN) as Screen[],
-  admin: ['kontrolni_centar', 'izvestaji', 'hijerarhija_audit', 'api_integracije', 'tech_config', 'incidenti'],
+  admin: ['kontrolni_centar', 'izvestaji', 'audit_log', 'api_integracije', 'tech_config', 'incidenti'],
   koordinator: ['kontrolni_centar', 'akcije', 'raspored', 'kampanje', 'prijem_davalaca'],
   prijem: ['moja_smena', 'prijem_davalaca'],
   medicinska: ['klinicki_sto', 'medicinska_sluzba'],
   pr_sadrzaj: ['redakcija', 'studio', 'kampanje', 'izvestaji'],
-  revizor: ['audit_log', 'hijerarhija_audit', 'izvestaji'],
+  revizor: ['audit_log', 'izvestaji'],
 }
 
 export function canOpen(role: Role, screen: Screen) {

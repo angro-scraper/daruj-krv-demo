@@ -6,6 +6,22 @@ import { Ic } from '../components/Icons'
 
 const MES = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Avg', 'Sep']
 const DON = [312, 287, 356, 298, 421, 389, 445, 402, 234]
+const BLOOD_GROUPS = [
+  { tip: 'O+', pct: 38, n: 1195 }, { tip: 'A+', pct: 28, n: 880 },
+  { tip: 'B+', pct: 16, n: 503 }, { tip: 'AB+', pct: 8, n: 252 },
+  { tip: 'O−', pct: 5, n: 157 }, { tip: 'Ostale', pct: 5, n: 157 },
+]
+const BRANCH_SUMMARY = [
+  { f: 'Beograd', don: 1847, odb: 152, stopa: 92.4, akcija: 8 },
+  { f: 'Novi Sad', don: 893, odb: 78, stopa: 91.9, akcija: 5 },
+  { f: 'Niš', don: 287, odb: 41, stopa: 87.5, akcija: 3 },
+  { f: 'Kragujevac', don: 117, odb: 16, stopa: 87.9, akcija: 2 },
+]
+type GeneratedReport = { id: string; name: string; date: string; count: number; branch: string; period: string; rows: (string | number)[][] }
+const GENERATED_KEY = 'portal-figma-generated-reports-v1'
+function loadGenerated(): GeneratedReport[] {
+  try { const saved = JSON.parse(localStorage.getItem(GENERATED_KEY) || '[]'); return Array.isArray(saved) ? saved : [] } catch { return [] }
+}
 const FILIJALE = ['Sve', 'Beograd', 'Novi Sad', 'Niš', 'Kragujevac']
 const MONTH_INDEX: Record<string, number> = { jan: 1, feb: 2, mar: 3, apr: 4, maj: 5, jun: 6, jul: 7, avg: 8, sep: 9, okt: 10, nov: 11, dec: 12 }
 function actionMonth(date: string): number { return MONTH_INDEX[date.toLowerCase().match(/\b(jan|feb|mar|apr|maj|jun|jul|avg|sep|okt|nov|dec)\b/)?.[0] || ''] || 0 }
@@ -17,6 +33,8 @@ export default function Izvestaji() {
   const [filijala, setFilijala] = useState('Sve')
   const [period, setPeriod] = useState('Sve vreme')
   const [actionId, setActionId] = useState('all')
+  const [generated, setGenerated] = useState<GeneratedReport[]>(loadGenerated)
+  const [previewId, setPreviewId] = useState<string | null>(null)
   const years = [...new Set(actions.map(action => actionYear(action.datum)).filter(Boolean))].sort((a, b) => b - a)
   const periods = ['Sve vreme', 'Tekuća godina', ...years.flatMap(year => [String(year), `Q1 ${year}`, `Q2 ${year}`, `Q3 ${year}`, `Q4 ${year}`])]
   const selectedAction = actions.find(action => action.id === actionId)
@@ -29,11 +47,25 @@ export default function Izvestaji() {
   const maxD = Math.max(...DON)
 
   function exportActions() {
-    downloadCsv(selectedAction ? `izvestaj-${selectedAction.id}.csv` : 'izvestaj-sve-akcije.csv', [
+    downloadCsv(selectedAction ? `izvestaj-${selectedAction.id}.csv` : 'izvestaj-sve-akcije.csv', actionRows())
+  }
+  function actionRows(): (string | number)[][] {
+    return [
       ['ID', 'Akcija', 'Datum', 'Lokacija', 'Filijala', 'Kapacitet', 'Prijavljeni', 'Donacije', 'Status'],
       ...reportActions.map(action => [action.id, action.naziv, action.datum, action.lokacija,
         action.filijala, action.kapacitet, action.prijavljeni, action.donacije, action.status]),
-    ])
+    ]
+  }
+  function generateReport() {
+    const report: GeneratedReport = {
+      id: `R-${Date.now()}`,
+      name: selectedAction ? `Izveštaj — ${selectedAction.naziv}` : `Zbirni izveštaj — ${filijala} · ${period}`,
+      date: new Date().toLocaleString('sr-Latn-RS'), count: reportActions.length, branch: filijala, period, rows: actionRows(),
+    }
+    const next = [report, ...generated]
+    setGenerated(next)
+    localStorage.setItem(GENERATED_KEY, JSON.stringify(next))
+    setPreviewId(report.id)
   }
 
   return (
@@ -59,7 +91,7 @@ export default function Izvestaji() {
           <option value="all">Sve akcije</option>
           {actions.map(action => <option key={action.id} value={action.id}>{action.naziv} · {action.datum}</option>)}
         </select>
-        <Btn variant="secondary" onClick={exportActions}><Ic.Download /> Izvezi izveštaj</Btn>
+        <Btn variant="secondary" onClick={exportActions} disabled={!reportActions.length}><Ic.Download /> Izvezi izveštaj</Btn>
       </div>
 
       {selectedAction && reportActions.length === 0 && <div role="status" className="rounded-xl border p-5 text-sm" style={{ background: C.white, borderColor: C.s100, color: C.ink5 }}>Izabrana akcija ne pripada odabranoj filijali ili periodu. Promenite filter za prikaz izveštaja.</div>}
@@ -104,7 +136,7 @@ export default function Izvestaji() {
             {/* Mesečni bar chart */}
             <Card>
               <CardHeader title="Donacije po mesecima — 2026." subtitle="Januar – Septembar" action={
-                <Btn variant="secondary" size="sm"><Ic.Download /> PDF</Btn>
+                <Btn variant="secondary" size="sm" onClick={() => downloadCsv('donacije-po-mesecima-demo.csv', [['Mesec', 'Donacije'], ...MES.map((m, i) => [m, DON[i]])])}><Ic.Download /> CSV</Btn>
               } />
               <div className="p-5">
                 <div className="flex items-end gap-2 h-40">
@@ -123,14 +155,10 @@ export default function Izvestaji() {
             {/* Distribucija krvnih grupa */}
             <Card>
               <CardHeader title="Distribucija krvnih grupa" action={
-                <Btn variant="secondary" size="sm"><Ic.Download /> XLS</Btn>
+                <Btn variant="secondary" size="sm" onClick={() => downloadCsv('krvne-grupe-demo.csv', [['Grupa', 'Udeo %', 'Broj'], ...BLOOD_GROUPS.map(g => [g.tip, g.pct, g.n])])}><Ic.Download /> CSV</Btn>
               } />
               <div className="p-5 flex flex-col gap-3">
-                {[
-                  { tip: 'O+', pct: 38, n: 1195 }, { tip: 'A+', pct: 28, n: 880 },
-                  { tip: 'B+', pct: 16, n: 503 }, { tip: 'AB+', pct: 8, n: 252 },
-                  { tip: 'O−', pct: 5, n: 157 }, { tip: 'Ostale', pct: 5, n: 157 },
-                ].map(({ tip, pct, n }) => (
+                {BLOOD_GROUPS.map(({ tip, pct, n }) => (
                   <div key={tip} className="flex items-center gap-3">
                     <span className="w-10 text-right text-xs font-mono" style={{ color: C.ink5, fontFamily: 'JetBrains Mono, monospace' }}>{tip}</span>
                     <div className="flex-1">
@@ -146,16 +174,11 @@ export default function Izvestaji() {
 
           {/* Po filijali */}
           <Card>
-            <CardHeader title="Pregled po filijali — {period}" action={
-              <Btn variant="secondary" size="sm"><Ic.Download /> Izvezi</Btn>
+            <CardHeader title="Demonstracioni pregled po filijali" action={
+              <Btn variant="secondary" size="sm" onClick={() => downloadCsv('pregled-po-filijali-demo.csv', [['Filijala', 'Donacije', 'Odbijeni', 'Stopa prihvata %', 'Akcija'], ...BRANCH_SUMMARY.map(b => [b.f, b.don, b.odb, b.stopa, b.akcija])])}><Ic.Download /> Izvezi CSV</Btn>
             } />
             <Table headers={['Filijala', 'Donacije', 'Odbijeni', 'Stopa prihvata', 'Akcija', 'Uspešnost']}>
-              {[
-                { f: 'Beograd', don: 1847, odb: 152, stopa: 92.4, akcija: 8 },
-                { f: 'Novi Sad', don: 893, odb: 78, stopa: 91.9, akcija: 5 },
-                { f: 'Niš', don: 287, odb: 41, stopa: 87.5, akcija: 3 },
-                { f: 'Kragujevac', don: 117, odb: 16, stopa: 87.9, akcija: 2 },
-              ].map(({ f, don, odb, stopa, akcija }) => (
+              {BRANCH_SUMMARY.map(({ f, don, odb, stopa, akcija }) => (
                 <TR key={f}>
                   <TD><span className="font-medium">{f}</span></TD>
                   <TD mono>{don.toLocaleString('sr')}</TD>
@@ -230,11 +253,11 @@ export default function Izvestaji() {
           </div>
           <Card>
             <CardHeader title="Trend zaliha — poslednjih 30 dana" action={
-              <Btn variant="secondary" size="sm"><Ic.Download /> Izvezi</Btn>
+              <Btn variant="secondary" size="sm" onClick={() => downloadCsv('zalihe-trenutno-demo.csv', [['Krvna grupa', 'Jedinica', 'Kapacitet'], ...ZALIHE.map(z => [z.tip, z.kolicina, z.max])])}><Ic.Download /> Izvezi CSV</Btn>
             } />
             <div className="p-5 text-center py-12" style={{ color: C.ink3 }}>
               <Ic.Izvestaji />
-              <p className="text-sm mt-2">Grafikon trenda biće prikazan ovde.</p>
+              <p className="text-sm mt-2">Istorijski trend nije povezan. Preuzimanje sadrži samo trenutno demo stanje zaliha.</p>
             </div>
           </Card>
         </div>
@@ -243,35 +266,33 @@ export default function Izvestaji() {
       {tab === 'generisani' && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-end">
-            <Btn><Ic.Plus /> Generiši novi</Btn>
+            <Btn onClick={generateReport} disabled={!reportActions.length}><Ic.Plus /> Generiši novi</Btn>
           </div>
           <Card>
             <Table headers={['Naziv', 'Tip', 'Period', 'Lokacija', 'Generisan', 'Format', 'Akcija']}>
-              {[
-                { naziv: 'Mesečni izveštaj — Avgust 2026', tip: 'Donacije', period: 'Avg 2026', lok: 'Sve', datum: '01. sep 2026', fmt: 'PDF' },
-                { naziv: 'Kvartal Q2 2026', tip: 'Zbirni', period: 'Apr–Jun 2026', lok: 'Sve', datum: '01. jul 2026', fmt: 'XLSX' },
-                { naziv: 'Analiza zaliha — Sep 2026', tip: 'Zalihe', period: 'Sep 2026', lok: 'Beograd', datum: '22. sep 2026', fmt: 'PDF' },
-                { naziv: 'Godišnji izveštaj 2025', tip: 'Godišnji', period: '2025', lok: 'Sve', datum: '15. jan 2026', fmt: 'PDF' },
-                { naziv: 'Izveštaj o incidentima Q3', tip: 'Bezbednost', period: 'Jul–Sep 2026', lok: 'Sve', datum: '22. sep 2026', fmt: 'PDF' },
-              ].map(r => (
-                <TR key={r.naziv}>
-                  <TD><span className="font-medium">{r.naziv}</span></TD>
-                  <TD muted>{r.tip}</TD>
-                  <TD mono>{r.period}</TD>
-                  <TD muted>{r.lok}</TD>
-                  <TD mono>{r.datum}</TD>
+              {generated.map(r => (
+                <TR key={r.id}>
+                  <TD><span className="font-medium">{r.name}</span></TD>
+                  <TD muted>Akcije</TD>
+                  <TD mono>{r.period || 'Sve vreme'}</TD>
+                  <TD muted>{r.branch || 'Sve'}</TD>
+                  <TD mono>{r.date}</TD>
                   <TD>
-                    <span className="text-xs font-mono px-2 py-0.5 rounded" style={{ background: C.s100, color: C.ink5, fontFamily: 'JetBrains Mono, monospace' }}>{r.fmt}</span>
+                    <span className="text-xs font-mono px-2 py-0.5 rounded" style={{ background: C.s100, color: C.ink5, fontFamily: 'JetBrains Mono, monospace' }}>CSV</span>
                   </TD>
                   <TD>
                     <div className="flex gap-2">
-                      <Btn variant="ghost" size="sm"><Ic.Download /></Btn>
-                      <Btn variant="ghost" size="sm"><Ic.Eye /></Btn>
+                      <Btn variant="ghost" size="sm" title="Preuzmi CSV" onClick={() => downloadCsv(`${r.id}.csv`, r.rows)}><Ic.Download /></Btn>
+                      <Btn variant="ghost" size="sm" title="Pregled izveštaja" onClick={() => setPreviewId(previewId === r.id ? null : r.id)}><Ic.Eye /></Btn>
                     </div>
                   </TD>
                 </TR>
               ))}
             </Table>
+            {generated.length === 0 && <p className="p-6 text-sm" style={{ color: C.ink5 }}>Još nema generisanih izveštaja. Izaberite akciju i filtere, pa kliknite „Generiši novi”.</p>}
+            {previewId && generated.find(r => r.id === previewId) && <div className="m-5 p-4 rounded-lg text-sm" style={{ background: C.s50, color: C.ink7 }}>
+              <strong>{generated.find(r => r.id === previewId)?.name}</strong> · {generated.find(r => r.id === previewId)?.count} akcija u sačuvanom preseku. Preuzmite CSV za detalje.
+            </div>}
           </Card>
         </div>
       )}

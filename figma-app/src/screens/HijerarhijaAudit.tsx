@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { AUDIT_LOGOVI, KORISNICI_LISTA, ROLE_LABELS, type Role } from '../data'
-import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, SearchBar, RoleBadge } from '../components/ui'
+import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, SearchBar, RoleBadge } from '../components/ui'
 import { Ic } from '../components/Icons'
+import { downloadCsv } from '../actionStore'
+import { canOpen } from '../routes'
+import type { Screen } from '../data'
 
-export default function HijerarhijaAudit({ initialTab = 'audit' }: { initialTab?: string }) {
+export default function HijerarhijaAudit({ initialTab = 'audit', auditOnly = false }: { initialTab?: string; auditOnly?: boolean }) {
   const [tab, setTab] = useState(initialTab)
   const [search, setSearch] = useState('')
   const [filterRezultat, setFilterRezultat] = useState('Svi')
+  const [notice, setNotice] = useState('')
 
   const filteredLogs = AUDIT_LOGOVI.filter(a => {
     const matchSearch = a.korisnik.toLowerCase().includes(search.toLowerCase())
@@ -57,11 +61,11 @@ export default function HijerarhijaAudit({ initialTab = 'audit' }: { initialTab?
 
   return (
     <PageWrap>
-      <Tabs tabs={[
+      {!auditOnly && <Tabs tabs={[
         { id: 'audit', label: 'Audit log' },
         { id: 'hijerarhija', label: 'Sistemska hijerarhija' },
         { id: 'delegacije', label: 'Delegacije i odgovornosti' },
-      ]} active={tab} onChange={setTab} />
+      ]} active={tab} onChange={setTab} />}
 
       {tab === 'audit' && (
         <>
@@ -71,7 +75,7 @@ export default function HijerarhijaAudit({ initialTab = 'audit' }: { initialTab?
               className="h-10 px-3 rounded-lg border text-sm outline-none" style={{ borderColor: C.s200, background: C.white, color: C.ink7 }}>
               {['Svi', 'Uspeh', 'Greška', 'Upozorenje'].map(r => <option key={r}>{r}</option>)}
             </select>
-            <Btn variant="secondary"><Ic.Download /> Izvezi</Btn>
+            <Btn variant="secondary" onClick={() => downloadCsv('audit-demo.csv', [['ID', 'Korisnik', 'Uloga', 'Akcija', 'Resurs', 'IP', 'Vreme', 'Rezultat'], ...filteredLogs.map(a => [a.id, a.korisnik, ROLE_LABELS[a.uloga], a.akcija, a.resurs, a.ip, a.vreme, a.rezultat])])}><Ic.Download /> Izvezi CSV</Btn>
           </div>
 
           <Card>
@@ -162,34 +166,25 @@ export default function HijerarhijaAudit({ initialTab = 'audit' }: { initialTab?
                   </tr>
                 </thead>
                 <tbody>
-                  {[
-                    { modul: 'Kontrolni centar', pristup: ['✓', '✓', '○', '—', '—', '—', '○'] },
-                    { modul: 'Akcije', pristup: ['✓', '○', '✓', '○', '—', '○', '○'] },
-                    { modul: 'Prijem davalaca', pristup: ['✓', '○', '✓', '✓', '—', '—', '—'] },
-                    { modul: 'Medicinska služba', pristup: ['✓', '—', '—', '—', '✓', '—', '—'] },
-                    { modul: 'Kampanje', pristup: ['✓', '—', '✓', '—', '—', '✓', '—'] },
-                    { modul: 'PR i sadržaj', pristup: ['✓', '—', '—', '—', '—', '✓', '—'] },
-                    { modul: 'Red odobravanja', pristup: ['✓', '—', '—', '—', '—', '—', '○'] },
-                    { modul: 'Izveštaji', pristup: ['✓', '✓', '○', '—', '—', '—', '✓'] },
-                    { modul: 'Osoblje', pristup: ['✓', '✓', '—', '—', '—', '—', '—'] },
-                    { modul: 'Pristup i uređaji', pristup: ['✓', '✓', '—', '—', '—', '—', '—'] },
-                    { modul: 'Hijerarhija / Audit', pristup: ['✓', '—', '—', '—', '—', '—', '✓'] },
-                    { modul: 'API i integracije', pristup: ['✓', '✓', '—', '—', '—', '—', '—'] },
-                  ].map(({ modul, pristup }) => (
+                  {([
+                    ['Kontrolni centar', 'kontrolni_centar'], ['Akcije', 'akcije'], ['Prijem davalaca', 'prijem_davalaca'],
+                    ['Medicinska služba', 'medicinska_sluzba'], ['Kampanje', 'kampanje'], ['PR i sadržaj', 'studio'],
+                    ['Red odobravanja', 'odobravanje'], ['Izveštaji', 'izvestaji'], ['Osoblje', 'osoblje'],
+                    ['Pristup i uređaji', 'pristup_uredjaji'], ['Hijerarhija', 'hijerarhija_audit'], ['Audit log', 'audit_log'],
+                    ['API i integracije', 'api_integracije'],
+                  ] as [string, Screen][]).map(([modul, screen]) => (
                     <tr key={modul} className="border-t" style={{ borderColor: C.s100 }}>
                       <td className="px-4 py-2.5 font-medium text-xs" style={{ color: C.ink7 }}>{modul}</td>
-                      {pristup.map((p, i) => (
-                        <td key={i} className="text-center px-3 py-2.5" style={{ color: p === '✓' ? C.teal2 : p === '○' ? '#d97706' : C.s300 }}>
-                          {p}
-                        </td>
-                      ))}
+                      {(['super_admin', 'admin', 'koordinator', 'prijem', 'medicinska', 'pr_sadrzaj', 'revizor'] as Role[]).map((role, i) => {
+                        const p = canOpen(role, screen) ? '✓' : '—'
+                        return <td key={i} className="text-center px-3 py-2.5" style={{ color: p === '✓' ? C.teal2 : C.s300 }}>{p}</td>
+                      })}
                     </tr>
                   ))}
                 </tbody>
               </table>
               <div className="flex items-center gap-6 px-4 py-3 border-t text-xs" style={{ borderColor: C.s100, color: C.ink3 }}>
-                <span><span style={{ color: C.teal2 }}>✓</span> Pun pristup</span>
-                <span><span style={{ color: '#d97706' }}>○</span> Ograničen pristup (čitanje)</span>
+                <span><span style={{ color: C.teal2 }}>✓</span> Ruta dostupna (radnje zavise od uloge)</span>
                 <span><span style={{ color: C.s300 }}>—</span> Bez pristupa</span>
               </div>
             </div>
@@ -200,7 +195,7 @@ export default function HijerarhijaAudit({ initialTab = 'audit' }: { initialTab?
       {tab === 'delegacije' && (
         <div className="grid lg:grid-cols-2 gap-5">
           <Card>
-            <CardHeader title="Aktivne delegacije" action={<Btn size="sm"><Ic.Plus /> Nova</Btn>} />
+            <CardHeader title="Aktivne delegacije" action={<Btn size="sm" onClick={() => setNotice('Nova delegacija ne može se aktivirati iz statičkog demo portala. Potrebna je serverska autorizacija Super admina, rok važenja i audit zapis.')}><Ic.Plus /> Nova</Btn>} />
             <div className="p-5">
               {[
                 { od: 'Aleksandar Đurić (SA)', na: 'Vesna Marković (Admin)', ovlascenje: 'Upravljanje korisnicima', period: '22–29. sep 2026', status: 'aktivna' },
@@ -242,6 +237,10 @@ export default function HijerarhijaAudit({ initialTab = 'audit' }: { initialTab?
           </Card>
         </div>
       )}
+      <Modal open={!!notice} onClose={() => setNotice('')} title="Delegacija pristupa">
+        <p className="text-sm leading-relaxed" style={{ color: C.ink7 }}>{notice}</p>
+        <div className="flex justify-end mt-5"><Btn onClick={() => setNotice('')}>U redu</Btn></div>
+      </Modal>
     </PageWrap>
   )
 }

@@ -23,7 +23,7 @@ const NAV_ADMIN = [
   { id: 'kontrolni_centar', label: 'Kontrolna tabla', Icon: Ic.Dashboard },
   { id: 'izvestaji', label: 'Izveštaji', Icon: Ic.Izvestaji },
   { id: 'api_integracije', label: 'API i integracije', Icon: Ic.API },
-  { id: 'hijerarhija_audit', label: 'Audit log', Icon: Ic.AuditLog },
+  { id: 'audit_log', label: 'Audit log', Icon: Ic.AuditLog },
 ]
 
 const NAV_KOORDINATOR = [
@@ -52,7 +52,7 @@ const NAV_PR = [
 ]
 
 const NAV_REVIZOR = [
-  { id: 'hijerarhija_audit', label: 'Audit log', Icon: Ic.AuditLog },
+  { id: 'audit_log', label: 'Audit log', Icon: Ic.AuditLog },
   { id: 'izvestaji', label: 'Izveštaji', Icon: Ic.Izvestaji },
 ]
 

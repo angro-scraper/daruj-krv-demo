@@ -40,6 +40,10 @@ export default function Studio() {
   const [message, setMessage] = useState('')
   const [attachments, setAttachments] = useState<{ name: string; type: string; url: string }[]>([])
   const uploadRef = useRef<HTMLInputElement>(null)
+  const galleryUploadRef = useRef<HTMLInputElement>(null)
+  const textRef = useRef<HTMLTextAreaElement>(null)
+  const [assetNotice, setAssetNotice] = useState('')
+  const [assetPreview, setAssetPreview] = useState<{ name: string; url: string; type: string } | null>(null)
 
   useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(vesti)) }, [vesti])
 
@@ -67,6 +71,25 @@ export default function Studio() {
     if (!uploadRef.current) return
     uploadRef.current.accept = accept
     uploadRef.current.click()
+  }
+  function addFile(file?: File) {
+    if (!file) return
+    setAttachments(current => [...current, { name: file.name, type: file.type, url: URL.createObjectURL(file) }])
+    setMessage(`Fajl „${file.name}” je dostupan u ovoj sesiji. Za trajno čuvanje je potreban serverski servis.`)
+  }
+  function formatContent(mark: string) {
+    if (!editor || !textRef.current) return
+    const input = textRef.current
+    const before = editor.sadrzaj.slice(0, input.selectionStart)
+    const selected = editor.sadrzaj.slice(input.selectionStart, input.selectionEnd) || 'tekst'
+    const after = editor.sadrzaj.slice(input.selectionEnd)
+    const wrapped: Record<string, string> = {
+      B: `**${selected}**`, I: `*${selected}*`, U: `<u>${selected}</u>`,
+      H1: `# ${selected}`, H2: `## ${selected}`, '"': `> ${selected}`,
+      '—': `- ${selected}`, '🔗': `[${selected}](https://)`,
+    }
+    setEditor({ ...editor, sadrzaj: before + wrapped[mark] + after })
+    input.focus()
   }
 
   const filtered = vesti.filter(v => {
@@ -106,7 +129,7 @@ export default function Studio() {
           {/* Mini toolbar */}
           <div className="flex items-center gap-1 mb-4 pb-4 border-b" style={{ borderColor: C.s100 }}>
             {['B', 'I', 'U', 'H1', 'H2', '"', '—', '🔗'].map(t => (
-              <button key={t} className="w-7 h-7 rounded flex items-center justify-center text-xs font-mono hover:bg-surface-100 transition-colors" style={{ color: C.ink5 }}>{t}</button>
+              <button key={t} type="button" title={`Umetni ${t}`} onClick={() => formatContent(t)} className="w-7 h-7 rounded flex items-center justify-center text-xs font-mono hover:bg-surface-100 transition-colors" style={{ color: C.ink5 }}>{t}</button>
             ))}
             <div className="h-5 w-px mx-2" style={{ background: C.s200 }} />
             <Btn variant="ghost" size="sm" onClick={() => chooseFile('image/*')}><Ic.Upload /> Slika</Btn>
@@ -116,7 +139,7 @@ export default function Studio() {
 
           <input ref={uploadRef} type="file" className="hidden" onChange={e => {
             const file = e.target.files?.[0]
-            if (file) setAttachments(current => [...current, { name: file.name, type: file.type, url: URL.createObjectURL(file) }])
+            addFile(file)
             e.target.value = ''
           }} />
           {message && <p role="status" className="text-xs mb-3" style={{ color: C.teal2 }}>{message}</p>}
@@ -124,7 +147,7 @@ export default function Studio() {
             <a key={file.url} href={file.url} target="_blank" rel="noreferrer" className="text-xs px-3 py-2 rounded-lg border" style={{ borderColor: C.s200, color: C.teal2 }}>{file.name}</a>
           ))}</div>}
 
-          <textarea
+          <textarea ref={textRef}
             value={editor.sadrzaj}
             onChange={e => setEditor({ ...editor, sadrzaj: e.target.value })}
             rows={20}
@@ -140,9 +163,9 @@ export default function Studio() {
             {/* Status */}
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide mb-3" style={{ color: C.ink3 }}>Objava</div>
-              <Select label="Status" options={['Nacrt', 'Recenzija', 'Odobreno', 'Objavljeno', 'Arhivirano']} />
+              <div className="text-sm"><StatusBadge status={editor.status} /></div>
             </div>
-            <Input label="Datum objave" type="date" value="2026-09-22" />
+            <div className="text-xs" style={{ color: C.ink5 }}>Datum zapisa: {editor.datum}</div>
             <Input label="Autor" value={editor.autor} onChange={autor => setEditor({ ...editor, autor })} />
             <Select label="Kategorija" options={KAT.slice(1)} value={editor.kategorija} onChange={kategorija => setEditor({ ...editor, kategorija })} />
 
@@ -194,9 +217,9 @@ export default function Studio() {
             )}
 
             <div className="flex flex-col gap-2 pt-2">
-              {editor.status !== 'objavljeno' && <Btn onClick={() => editor.status === 'odobreno' ? saveVest(editor, 'objavljeno') : (setMessage('Pre objave je potrebna stručna provera i odobrenje.'), saveVest(editor, 'recenzija'))}>Objavi</Btn>}
+              {editor.status !== 'objavljeno' && <Btn onClick={() => editor.status === 'odobreno' ? saveVest(editor, 'objavljeno') : (setMessage('Pre objave je potrebna stručna provera i odobrenje.'), saveVest(editor, 'recenzija'))}>{editor.status === 'odobreno' ? 'Objavi' : 'Pošalji na proveru'}</Btn>}
               {editor.status === 'objavljeno' && <Btn variant="danger" onClick={() => saveVest(editor, 'arhivirano')}>Povuci objavu</Btn>}
-              <Btn variant="secondary" onClick={() => window.print()}><Ic.Download /> Izvezi PDF</Btn>
+              <Btn variant="secondary" onClick={() => window.print()}><Ic.Download /> Štampaj / sačuvaj PDF</Btn>
             </div>
           </div>
         </div>
@@ -206,6 +229,8 @@ export default function Studio() {
 
   return (
     <PageWrap>
+      {message && <div role="status" className="rounded-lg border p-3 text-sm" style={{ borderColor: C.s200, background: C.s50, color: C.ink7 }}>{message}</div>}
+      <input ref={galleryUploadRef} type="file" className="hidden" onChange={e => { addFile(e.target.files?.[0]); e.target.value = '' }} />
       <div className="flex items-center gap-3 flex-wrap">
         <Tabs tabs={[{ id: 'vesti', label: 'Vesti i objave' }, { id: 'dokumenti', label: 'Dokumenti' }, { id: 'mediji', label: 'Mediji' }]}
           active={tab} onChange={setTab} />
@@ -273,19 +298,24 @@ export default function Studio() {
                 </div>
                 <div className="text-xs mb-3" style={{ color: C.ink3 }}>Dodato: {d.datum}</div>
                 <div className="flex gap-2">
-                  <Btn variant="secondary" size="sm"><Ic.Eye /> Pregled</Btn>
-                  <Btn variant="secondary" size="sm"><Ic.Download /> Preuzmi</Btn>
+                  <Btn variant="secondary" size="sm" onClick={() => setAssetNotice(`„${d.naziv}” je primer stavke. Originalni ${d.tip} fajl nije priložen demo portalu.`)}><Ic.Eye /> Detalji</Btn>
+                  <Btn variant="secondary" size="sm" onClick={() => setAssetNotice(`„${d.naziv}” nije priložen. Nije preuzet nikakav fajl.`)}><Ic.Download /> Preuzmi</Btn>
                 </div>
               </div>
             </Card>
           ))}
 
-          <Card className="border-dashed cursor-pointer hover:border-teal-400 transition-colors" style={{ borderStyle: 'dashed' }}>
+          {attachments.filter(file => !file.type.startsWith('image/')).map(file => <Card key={file.url}>
+            <div className="p-5"><div className="font-medium text-sm mb-2" style={{ color: C.ink7 }}>{file.name}</div>
+              <div className="flex gap-2"><Btn variant="secondary" size="sm" onClick={() => setAssetPreview(file)}><Ic.Eye /> Pregled</Btn>
+                <a href={file.url} download={file.name} className="inline-flex items-center rounded-lg px-3 h-8 text-xs font-medium" style={{ background: C.s100, color: C.ink5 }}>Preuzmi</a></div>
+            </div></Card>)}
+          <Card className="border-dashed" style={{ borderStyle: 'dashed' }}>
             <div className="p-5 flex flex-col items-center justify-center h-full min-h-[150px] text-center">
               <div className="w-10 h-10 rounded-full flex items-center justify-center mb-2" style={{ background: C.s100, color: C.ink3 }}>
                 <Ic.Upload />
               </div>
-              <div className="text-sm font-medium" style={{ color: C.ink5 }}>Otpremi dokument</div>
+              <button type="button" className="text-sm font-medium" style={{ color: C.ink5 }} onClick={() => { if (galleryUploadRef.current) { galleryUploadRef.current.accept = '.pdf,.doc,.docx,.ppt,.pptx,video/*'; galleryUploadRef.current.click() } }}>Otpremi dokument</button>
               <div className="text-xs mt-0.5" style={{ color: C.ink3 }}>PDF, Word, slike, video</div>
             </div>
           </Card>
@@ -300,20 +330,35 @@ export default function Studio() {
             { url: 'https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=400&h=300&fit=crop&auto=format', alt: 'Laboratorija' },
             { url: 'https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop&auto=format', alt: 'Medicinski tim' },
           ].map(({ url, alt }) => (
-            <div key={url} className="aspect-video rounded-xl overflow-hidden relative group cursor-pointer" style={{ background: C.s100 }}>
+            <div key={url} className="aspect-video rounded-xl overflow-hidden relative group" style={{ background: C.s100 }}>
               <img src={url} alt={alt} className="w-full h-full object-cover" />
               <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: '#0b1e3d80' }}>
-                <Btn size="sm" variant="secondary"><Ic.Eye /></Btn>
-                <Btn size="sm" variant="secondary"><Ic.Download /></Btn>
+                <Btn size="sm" variant="secondary" title={`Pregled: ${alt}`} onClick={() => setAssetPreview({ name: alt, url, type: 'image/jpeg' })}><Ic.Eye /></Btn>
+                <Btn size="sm" variant="secondary" title={`Otvori izvor: ${alt}`} onClick={() => window.open(url, '_blank', 'noopener,noreferrer')}><Ic.Link /></Btn>
               </div>
             </div>
           ))}
-          <div className="aspect-video rounded-xl border-2 border-dashed flex flex-col items-center justify-center cursor-pointer hover:border-teal-400 transition-colors" style={{ borderColor: C.s300 }}>
+          {attachments.filter(file => file.type.startsWith('image/')).map(file => <div key={file.url} className="aspect-video rounded-xl overflow-hidden relative group" style={{ background: C.s100 }}>
+            <img src={file.url} alt={file.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100" style={{ background: '#0b1e3d80' }}>
+              <Btn size="sm" variant="secondary" onClick={() => setAssetPreview(file)}><Ic.Eye /></Btn>
+              <a href={file.url} download={file.name} className="inline-flex items-center rounded-lg px-3 h-8 text-xs" style={{ background: C.s100, color: C.ink5 }}>Preuzmi</a>
+            </div></div>)}
+          <div className="aspect-video rounded-xl border-2 border-dashed flex flex-col items-center justify-center hover:border-teal-400 transition-colors" style={{ borderColor: C.s300 }}>
             <Ic.Upload />
-            <span className="text-xs mt-1" style={{ color: C.ink3 }}>Otpremi</span>
+            <button type="button" className="text-xs mt-1" style={{ color: C.ink3 }} onClick={() => { if (galleryUploadRef.current) { galleryUploadRef.current.accept = 'image/*'; galleryUploadRef.current.click() } }}>Otpremi sliku</button>
           </div>
         </div>
       )}
+
+      <Modal open={!!assetNotice} onClose={() => setAssetNotice('')} title="Dokument nije povezan">
+        <p className="text-sm" style={{ color: C.ink7 }}>{assetNotice}</p>
+        <div className="flex justify-end mt-5"><Btn onClick={() => setAssetNotice('')}>U redu</Btn></div>
+      </Modal>
+      <Modal open={!!assetPreview} onClose={() => setAssetPreview(null)} title={assetPreview?.name || 'Pregled fajla'} width="max-w-2xl">
+        {assetPreview?.type.startsWith('image/') ? <img src={assetPreview.url} alt={assetPreview.name} className="w-full rounded-lg" />
+          : <div className="text-sm" style={{ color: C.ink7 }}>Za ovaj tip fajla koristite otvaranje u pregledaču ili preuzimanje.<div className="mt-4"><a href={assetPreview?.url} target="_blank" rel="noreferrer" className="underline" style={{ color: C.teal2 }}>Otvori fajl</a></div></div>}
+      </Modal>
 
       {/* Preview modal */}
       <Modal open={previewModal} onClose={() => setPreviewModal(false)} title="Pregled vesti" width="max-w-2xl">

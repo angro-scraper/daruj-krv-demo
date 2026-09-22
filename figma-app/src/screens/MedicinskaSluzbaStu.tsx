@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { type Davalac } from '../data'
-import { loadActions } from '../actionStore'
+import { downloadCsv, loadActions } from '../actionStore'
 import { loadDonors, saveDonors } from '../donorStore'
 import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, EmptyState } from '../components/ui'
 import { Ic } from '../components/Icons'
@@ -30,6 +30,7 @@ export default function MedicinskaSluzbaStu({ uloga: _uloga }: { uloga: string }
   const [tab, setTab] = useState('pregled')
   const [selModal, setSelModal] = useState(false)
   const [selDonor, setSelDonor] = useState<Davalac | null>(null)
+  const [notice, setNotice] = useState('')
 
   const pregled_davalaci = donors.filter(d => d.akcija === actionId && (d.status === 'pregled' || d.status === 'donacija'))
   const updateDonor = (status: Davalac['status']) => {
@@ -119,7 +120,7 @@ export default function MedicinskaSluzbaStu({ uloga: _uloga }: { uloga: string }
       {tab === 'laboratorija' && (
         <Card>
           <CardHeader title="Laboratorijska testiranja — danas" action={
-            <Btn variant="secondary" size="sm"><Ic.Download /> Izvezi</Btn>
+            <Btn variant="secondary" size="sm" onClick={() => downloadCsv('laboratorija-demo.csv', [['Uzorak', 'Davalac', 'Testovi', 'Primljeno', 'Rezultat', 'Status'], ...LAB_UZORCI.map(u => [u.id, u.donor, u.test, u.primljeno, u.rezultat, u.status])])}><Ic.Download /> Izvezi demo CSV</Btn>
           } />
           <Table headers={['Uzorak ID', 'Davalac', 'Testovi', 'Primljeno', 'Rezultat', 'Status']}>
             {LAB_UZORCI.map(u => (
@@ -144,7 +145,7 @@ export default function MedicinskaSluzbaStu({ uloga: _uloga }: { uloga: string }
         <div className="grid lg:grid-cols-2 gap-5">
           <Card>
             <CardHeader title="Aktivne kontraindikacije" subtitle={`${KONTRA.length} evidentirano`} action={
-              <Btn size="sm"><Ic.Plus /> Nova</Btn>
+              <Btn size="sm" onClick={() => setNotice('Nova kontraindikacija ne može se uneti u statičkom demo portalu. U produkciji to mora da uradi ovlašćeni lekar kroz odobren medicinski obrazac i audit zapis.')}><Ic.Plus /> Nova</Btn>
             } />
             <Table headers={['Davalac', 'Razlog', 'Tip', 'Period', 'Lekar']}>
               {KONTRA.map(k => (
@@ -202,14 +203,19 @@ export default function MedicinskaSluzbaStu({ uloga: _uloga }: { uloga: string }
                   </div>
                 </div>
                 <div className="flex gap-2 ml-3">
-                  <Btn variant="ghost" size="sm"><Ic.Eye /></Btn>
-                  <Btn variant="ghost" size="sm"><Ic.Download /></Btn>
+                  <Btn variant="ghost" size="sm" title={`Detalji: ${p.naziv}`} onClick={() => setNotice(`${p.naziv} (${p.verzija}) · ${p.kategorija} · ažurirano ${p.datum}. Tekst protokola nije priložen demo portalu.`)}><Ic.Eye /></Btn>
+                  <Btn variant="ghost" size="sm" title={`Preuzmi ${p.naziv}`} onClick={() => setNotice(`Originalni dokument „${p.naziv}” nije priložen. Nije preuzet nikakav fajl.`)}><Ic.Download /></Btn>
                 </div>
               </div>
             </Card>
           ))}
         </div>
       )}
+
+      <Modal open={!!notice} onClose={() => setNotice('')} title="Informacija o demo funkciji">
+        <p className="text-sm leading-relaxed" style={{ color: C.ink7 }}>{notice}</p>
+        <div className="flex justify-end mt-5"><Btn onClick={() => setNotice('')}>U redu</Btn></div>
+      </Modal>
 
       {/* Pregled donora modal */}
       <Modal open={selModal} onClose={() => setSelModal(false)} title="Medicinski pregled — kartica">

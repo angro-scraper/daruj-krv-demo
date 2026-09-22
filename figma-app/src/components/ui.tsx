@@ -244,9 +244,7 @@ export function Modal({ open, onClose, title, children, width = 'max-w-lg' }: { 
 
 // ── KPI Card ───────────────────────────────────────────────────────────────
 export function KpiCard({ label, value, sub, color, icon, alert = false, onClick }: { label: string; value: string; sub: string; color: string; icon: React.ReactNode; alert?: boolean; onClick?: () => void }) {
-  return (
-    <Card>
-      <button type="button" onClick={onClick} disabled={!onClick} className="p-5 flex flex-col gap-3 w-full text-left disabled:cursor-default enabled:hover:bg-slate-50 transition-colors">
+  const content = <>
         <div className="flex items-start justify-between">
           <span className="text-xs font-medium" style={{ color: C.ink3 }}>{label}</span>
           <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: color + '18', color }}>
@@ -257,7 +255,12 @@ export function KpiCard({ label, value, sub, color, icon, alert = false, onClick
           <div className="text-2xl font-medium" style={{ color: alert ? C.burgundy : C.navy, fontFamily: 'JetBrains Mono, monospace' }}>{value}</div>
           <div className="text-xs mt-1" style={{ color: C.ink3 }}>{sub}</div>
         </div>
-      </button>
+      </>
+  return (
+    <Card>
+      {onClick
+        ? <button type="button" onClick={onClick} className="p-5 flex flex-col gap-3 w-full text-left hover:bg-slate-50 transition-colors">{content}</button>
+        : <div className="p-5 flex flex-col gap-3 w-full text-left">{content}</div>}
     </Card>
   )
 }

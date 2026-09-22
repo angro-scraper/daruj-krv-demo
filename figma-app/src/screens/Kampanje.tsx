@@ -115,8 +115,8 @@ export default function Kampanje() {
       {tab === 'kampanje' && (
         <div className="grid lg:grid-cols-3 gap-5">
           {campaigns.map(k => (
-            <Card key={k.id} className="hover:shadow-sm transition-shadow cursor-pointer" style={{ cursor: 'pointer' }}>
-              <div className="p-5 flex flex-col gap-3" onClick={() => { setSelKampanja(k); setDetModal(true) }}>
+            <Card key={k.id} className="hover:shadow-sm transition-shadow">
+              <div className="p-5 flex flex-col gap-3 cursor-pointer" onClick={() => { setSelKampanja(k); setDetModal(true) }}>
                 <div className="flex items-start justify-between gap-2">
                   <StatusBadge status={k.status} />
                   <span className="text-xs font-mono" style={{ color: C.ink3, fontFamily: 'JetBrains Mono, monospace' }}>{k.id}</span>
