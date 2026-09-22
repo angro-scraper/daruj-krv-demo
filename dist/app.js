@@ -286,6 +286,7 @@ function renderPortal(screen=state.portalScreen){
   const workspace=roleWorkspaces[state.activePortalRole]||roleWorkspaces.super_admin;
   if(workspace.screens&&!workspace.screens.includes(screen)){screen=workspace.screens[0];state.portalScreen=screen}
   $$('#portal-nav [data-portal-screen]').forEach(button=>{button.classList.toggle('active',button.dataset.portalScreen===screen||(screen.startsWith('campaign-')&&button.dataset.portalScreen==='campaigns'));button.classList.toggle('role-hidden',Boolean(workspace.screens&&!workspace.screens.includes(button.dataset.portalScreen)))});
+  portalScreen.dataset.screen=screen;
   portalScreen.innerHTML=roleWorkspaceStrip()+(portalTemplates[screen]?.()||portalTemplates.dashboard());
   decoratePortalActions();
   if(screen==='dashboard'&&state.activePortalRole==='super_admin')requestAnimationFrame(()=>renderPortalStreetMap('portal-dashboard-street-map'));
