@@ -7,6 +7,8 @@ import Prijava from './screens/Prijava'
 import KontrolniCentar from './screens/KontrolniCentar'
 import Akcije from './screens/Akcije'
 import PrijemDavalaca from './screens/PrijemDavalaca'
+import ConnectedDemoReception from './screens/ConnectedDemoReception'
+import { connectedDemoEnabled } from './demoApi'
 import MedicinskaSluzbaStu from './screens/MedicinskaSluzbaStu'
 import Kampanje from './screens/Kampanje'
 import Studio from './screens/Studio'
@@ -146,7 +148,7 @@ function resolveScreen(screen: Screen, onNav: (s: Screen) => void, uloga: string
   switch (screen) {
     case 'kontrolni_centar': return <KontrolniCentar onNav={onNav} uloga={uloga as Korisnik['uloga']} />
     case 'akcije': return <Akcije />
-    case 'prijem_davalaca': return <PrijemDavalaca />
+    case 'prijem_davalaca': return connectedDemoEnabled ? <ConnectedDemoReception /> : <PrijemDavalaca />
     case 'medicinska_sluzba': return <MedicinskaSluzbaStu uloga={uloga} />
     case 'kampanje': return <Kampanje />
     case 'studio': return <Studio />

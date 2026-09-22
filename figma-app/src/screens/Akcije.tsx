@@ -4,11 +4,12 @@ import { downloadCsv, loadActions, saveActions } from '../actionStore'
 import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, Input, Select, SearchBar, Progress, EmptyState } from '../components/ui'
 import { Ic } from '../components/Icons'
 import { PlaceSearch } from '../components/PlaceSearch'
+import { connectedDemoEnabled, createDemoAction, editDemoAction, getDemoActions, setDemoActionStatus, type DemoAction } from '../demoApi'
 
 const MESECI = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Avg', 'Sep', 'Okt', 'Nov', 'Dec']
 const FILIJALE = ['Sve filijale', 'Beograd', 'Novi Sad', 'Niš', 'Kragujevac']
 const YEARS = Array.from({ length: 101 }, (_, index) => 2000 + index)
-const EMPTY_ACTION = { naziv: '', datum: '', lokacija: '', mesto: '', filijala: 'Beograd', kapacitet: '', koordinator: '' }
+const EMPTY_ACTION = { naziv: '', datum: '', lokacija: '', mesto: '', filijala: 'Beograd', kapacitet: '', koordinator: '', startTime: '10:00', endTime: '14:00' }
 
 function dateOfAction(action: Akcija) {
   const match = action.datum.match(/^(\d{1,2})\.\s*([\p{L}]+)\s*(\d{4})/u)
@@ -18,7 +19,7 @@ function dateOfAction(action: Akcija) {
 }
 
 export default function Akcije() {
-  const [actions, setActions] = useState<Akcija[]>(loadActions)
+  const [actions, setActions] = useState<Akcija[]>(connectedDemoEnabled ? [] : loadActions)
   const [tab, setTab] = useState('lista')
   const [search, setSearch] = useState('')
   const [filijala, setFilijala] = useState('Sve filijale')
@@ -32,7 +33,15 @@ export default function Akcije() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [message, setMessage] = useState('')
 
-  useEffect(() => { saveActions(actions) }, [actions])
+  useEffect(() => { if (!connectedDemoEnabled) saveActions(actions) }, [actions])
+  useEffect(() => {
+    if (!connectedDemoEnabled) return
+    let active = true
+    const refresh = () => { void getDemoActions().then(data => { if (active) { setActions(data); setMessage('') } }).catch((error: unknown) => { if (active) setMessage(`Demo servis: ${error instanceof Error ? error.message : 'nije dostupan'}`) }) }
+    refresh()
+    const timer = window.setInterval(refresh, 15000)
+    return () => { active = false; window.clearInterval(timer) }
+  }, [])
 
   const filtered = actions.filter(a => {
     const matchSearch = a.naziv.toLowerCase().includes(search.toLowerCase()) || a.lokacija.toLowerCase().includes(search.toLowerCase()) || (a.mesto || '').toLowerCase().includes(search.toLowerCase())
@@ -45,18 +54,39 @@ export default function Akcije() {
   const monthOffset = (new Date(selectedGodina, selectedMesec, 1).getDay() + 6) % 7
   const kalendarDani = Array.from({ length: new Date(selectedGodina, selectedMesec + 1, 0).getDate() }, (_, i) => i + 1)
 
-  function updateAction(id: string, status: Akcija['status']) {
+  async function updateAction(id: string, status: Akcija['status']) {
+    if (connectedDemoEnabled) {
+      try {
+        const remoteStatus = ({ planirana: 'planned', aktivna: 'published', zavrsena: 'completed', otkazana: 'cancelled' } as Record<Akcija['status'], DemoAction['status']>)[status]
+        await setDemoActionStatus(id, remoteStatus)
+        const next = await getDemoActions()
+        setActions(next); setSelAkcija(next.find(item => item.id === id) ?? null)
+        setMessage('Promena akcije je sačuvana u zajedničkom demo servisu.')
+      } catch (error) { setMessage(error instanceof Error ? error.message : 'Promena nije sačuvana.') }
+      return
+    }
     setActions(current => current.map(action => action.id === id ? { ...action, status } : action))
     setSelAkcija(current => current?.id === id ? { ...current, status } : current)
     setMessage('Promena akcije je sačuvana u ovom pregledaču.')
   }
 
-  function saveAction() {
+  async function saveAction() {
     if (!form.naziv.trim() || !form.datum || !form.lokacija.trim() || !form.mesto.trim() || Number(form.kapacitet) < 1) {
       setMessage('Popunite naziv, datum, lokaciju, mesto i kapacitet.'); return
     }
     const date = new Date(`${form.datum}T12:00:00`)
     const datum = `${date.getDate()}. ${MESECI[date.getMonth()].toLowerCase()} ${date.getFullYear()}`
+    if (connectedDemoEnabled) {
+      try {
+        const input = { title: form.naziv.trim(), date: form.datum, startTime: form.startTime, endTime: form.endTime, venue: form.lokacija.trim(), city: form.mesto.trim(), capacity: Number(form.kapacitet) }
+        if (editingId) await editDemoAction(editingId, input)
+        else await createDemoAction(input)
+        setActions(await getDemoActions())
+        setNovaModal(false); setForm(EMPTY_ACTION); setEditingId(null)
+        setMessage(editingId ? 'Akcija je izmenjena u demo servisu.' : 'Nova akcija je planirana. Aktivirajte je da bi je aplikacije videle.')
+      } catch (error) { setMessage(error instanceof Error ? error.message : 'Akcija nije sačuvana.') }
+      return
+    }
     if (editingId) {
       setActions(current => current.map(action => action.id === editingId ? {
         ...action, naziv: form.naziv.trim(), datum, lokacija: form.lokacija.trim(), mesto: form.mesto.trim(),
@@ -77,7 +107,7 @@ export default function Akcije() {
   function editAction(action: Akcija) {
     const date = dateOfAction(action)
     setForm({ naziv: action.naziv, datum: date ? `${date.year}-${String(date.month + 1).padStart(2, '0')}-${String(date.day).padStart(2, '0')}` : '',
-      lokacija: action.lokacija, mesto: action.mesto || '', filijala: action.filijala, kapacitet: String(action.kapacitet), koordinator: action.koordinator })
+      lokacija: action.lokacija, mesto: action.mesto || '', filijala: action.filijala, kapacitet: String(action.kapacitet), koordinator: action.koordinator, startTime: action.startTime || '10:00', endTime: action.endTime || '14:00' })
     setEditingId(action.id); setDetaljiModal(false); setNovaModal(true)
   }
 
@@ -262,7 +292,7 @@ export default function Akcije() {
             <div className="flex gap-3 pt-2">
               {selAkcija.status === 'planirana' && <Btn onClick={() => updateAction(selAkcija.id, 'aktivna')}>Aktiviraj akciju</Btn>}
               {selAkcija.status === 'aktivna' && <Btn onClick={() => updateAction(selAkcija.id, 'zavrsena')}>Zatvori akciju</Btn>}
-              <Btn variant="secondary" onClick={() => editAction(selAkcija)}><Ic.Edit /> Izmeni</Btn>
+              {(!connectedDemoEnabled || selAkcija.status === 'planirana') && <Btn variant="secondary" onClick={() => editAction(selAkcija)}><Ic.Edit /> Izmeni</Btn>}
               {selAkcija.status !== 'zavrsena' && selAkcija.status !== 'otkazana' && <Btn variant="danger" onClick={() => updateAction(selAkcija.id, 'otkazana')}>Otkaži</Btn>}
             </div>
           </div>
@@ -279,8 +309,8 @@ export default function Akcije() {
           <Select label="Filijala" options={FILIJALE.slice(1)} value={form.filijala} onChange={filijala => setForm({ ...form, filijala })} />
           <Input label="Kapacitet (donora)" type="number" value={form.kapacitet} onChange={kapacitet => setForm({ ...form, kapacitet })} placeholder="100" />
           <Input label="Koordinator" value={form.koordinator} onChange={koordinator => setForm({ ...form, koordinator })} placeholder="Ime koordinatora" />
-          <Input label="Vreme početka" type="time" />
-          <Input label="Vreme završetka" type="time" />
+          <Input label="Vreme početka" type="time" value={form.startTime} onChange={startTime => setForm({ ...form, startTime })} />
+          <Input label="Vreme završetka" type="time" value={form.endTime} onChange={endTime => setForm({ ...form, endTime })} />
         </div>
         <div className="flex gap-3 mt-6 justify-end">
           <Btn variant="secondary" onClick={() => setNovaModal(false)}>Otkaži</Btn>

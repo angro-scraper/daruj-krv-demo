@@ -17,6 +17,7 @@ export interface Korisnik {
 export interface Akcija {
   id: string; naziv: string; datum: string; lokacija: string
   mesto?: string
+  startTime?: string; endTime?: string
   status: 'planirana' | 'aktivna' | 'zavrsena' | 'otkazana'
   kapacitet: number; prijavljeni: number; donacije: number
   koordinator: string; filijala: string

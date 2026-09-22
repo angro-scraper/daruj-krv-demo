@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { ZALIHE, INTEGRACIJE, AUDIT_LOGOVI, type Screen, type Role } from '../data'
 import { canOpen } from '../routes'
 import { loadActions } from '../actionStore'
@@ -6,9 +7,24 @@ import { loadApprovals } from './Odobravanje'
 import { C, KpiCard, Card, CardHeader, PageWrap, StatusBadge, Progress } from '../components/ui'
 import { Ic } from '../components/Icons'
 import { ActionMap } from '../components/ActionMap'
+import { connectedDemoEnabled, getDemoActions, getDemoReception } from '../demoApi'
+import type { Akcija } from '../data'
 export default function KontrolniCentar({ onNav, uloga }: { onNav: (s: Screen) => void; uloga: Role }) {
-  const actions = loadActions()
-  const donors = loadDonors()
+  const [remoteActions, setRemoteActions] = useState<Akcija[]>([])
+  const [remoteReceptionCount, setRemoteReceptionCount] = useState(0)
+  const [demoError, setDemoError] = useState('')
+  useEffect(() => {
+    if (!connectedDemoEnabled) return
+    let active = true
+    const refresh = () => { void Promise.all([getDemoActions(), getDemoReception()]).then(([actions, reservations]) => {
+      if (active) { setRemoteActions(actions); setRemoteReceptionCount(reservations.filter(item => item.status === 'checked_in').length); setDemoError('') }
+    }).catch((error: unknown) => { if (active) setDemoError(error instanceof Error ? error.message : 'Demo servis nije dostupan.') }) }
+    refresh()
+    const timer = window.setInterval(refresh, 15000)
+    return () => { active = false; window.clearInterval(timer) }
+  }, [])
+  const actions = connectedDemoEnabled ? remoteActions : loadActions()
+  const donors = connectedDemoEnabled ? [] : loadDonors()
   const approvals = loadApprovals()
   const kritZalihe = ZALIHE.filter(z => z.kolicina / z.max < 0.3).length
   const aktivnaAkcija = actions.find(a => a.status === 'aktivna')
@@ -19,6 +35,7 @@ export default function KontrolniCentar({ onNav, uloga }: { onNav: (s: Screen) =
 
   return (
     <PageWrap>
+      {connectedDemoEnabled && <div role="status" className="rounded-xl border p-3 text-sm" style={{ color: demoError ? C.burgundy : C.teal2, borderColor: demoError ? C.burgundy : C.teal, background: demoError ? C.burgundyBg : C.tealBg }}>{demoError ? `Povezani demo servis nije dostupan: ${demoError}` : 'Povezani sintetički demo · akcije i prijem se čitaju iz zasebnog servisa. Ostali moduli su prototip.'}</div>}
       {/* Dnevni prioriteti */}
       {((kritZalihe > 0 && allowed('izvestaji')) || (ceka_odobravanje > 0 && allowed('odobravanje')) || (intGreska > 0 && allowed('api_integracije'))) && (
         <div className="rounded-xl border p-4 flex flex-col gap-2" style={{ background: C.burgundyBg, borderColor: C.burgundy + '40' }}>
@@ -51,7 +68,7 @@ export default function KontrolniCentar({ onNav, uloga }: { onNav: (s: Screen) =
 
       {/* KPI red */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard label="Donori danas" value={String(donors.length)} sub={`${cekaDavalaca} u čekaonici`} color={C.teal} icon={<Ic.Prijem />} onClick={allowed('prijem_davalaca') ? () => onNav('prijem_davalaca') : undefined} />
+        <KpiCard label={connectedDemoEnabled ? 'Demo prijavljeni' : 'Donori danas'} value={String(connectedDemoEnabled ? remoteReceptionCount : donors.length)} sub={connectedDemoEnabled ? 'sintetički dolasci' : `${cekaDavalaca} u čekaonici`} color={C.teal} icon={<Ic.Prijem />} onClick={allowed('prijem_davalaca') ? () => onNav('prijem_davalaca') : undefined} />
         <KpiCard label="Aktivna akcija" value={aktivnaAkcija ? `${aktivnaAkcija.donacije}/${aktivnaAkcija.kapacitet}` : '—'} sub={aktivnaAkcija?.naziv ?? 'Nema aktivne akcije'} color={C.navy3} icon={<Ic.Akcije />} onClick={allowed('akcije') ? () => onNav('akcije') : undefined} />
         <KpiCard label="Kritične zalihe" value={String(kritZalihe)} sub="krvnih grupa ispod 30%" color={C.burgundy} icon={<Ic.Drop />} alert={kritZalihe > 0} onClick={allowed('izvestaji') ? () => onNav('izvestaji') : undefined} />
         <KpiCard label="Na čekanju (odo.)" value={String(ceka_odobravanje)} sub="zahteva za odobrenje" color="#d97706" icon={<Ic.Odobravanje />} alert={ceka_odobravanje > 0} onClick={allowed('odobravanje') ? () => onNav('odobravanje') : undefined} />
