@@ -134,7 +134,7 @@ export default function Akcije() {
       )}
 
       {tab === 'kalendar' && (
-        <Card>
+        <Card className="w-full max-w-[1100px] mx-auto">
           <CardHeader title="Kalendar akcija" action={
             <div className="flex items-center gap-2">
               <select value={selectedMesec} onChange={e => setSelectedMesec(Number(e.target.value))}
@@ -147,7 +147,7 @@ export default function Akcije() {
               </select>
             </div>
           } />
-          <div className="p-5">
+          <div className="p-4">
             <div className="grid grid-cols-7 gap-1 mb-2">
               {['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned'].map(d => (
                 <div key={d} className="text-center text-xs font-medium py-1" style={{ color: C.ink3 }}>{d}</div>
@@ -165,7 +165,7 @@ export default function Akcije() {
                     tabIndex={hasAkcija ? 0 : undefined}
                     onClick={() => { if (hasAkcija) { setSelAkcija(hasAkcija); setDetaljiModal(true) } }}
                     onKeyDown={e => { if (hasAkcija && (e.key === 'Enter' || e.key === ' ')) { setSelAkcija(hasAkcija); setDetaljiModal(true) } }}
-                    className="aspect-square rounded-lg flex flex-col items-center justify-center text-xs cursor-pointer hover:opacity-80 transition-opacity"
+                    className="h-16 sm:h-20 rounded-lg flex flex-col items-center justify-center text-xs cursor-pointer hover:opacity-80 transition-opacity"
                     style={{
                       background: isToday ? C.navy : hasAkcija ? C.teal + '22' : C.s50,
                       border: hasAkcija && !isToday ? `1px solid ${C.teal}44` : '1px solid transparent',

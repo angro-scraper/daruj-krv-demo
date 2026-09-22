@@ -1,5 +1,6 @@
 // ── Shared UI Components ───────────────────────────────────────────────────
 import { type Role, ROLE_LABELS, ROLE_COLORS } from '../data'
+import { createPortal } from 'react-dom'
 
 // ── Color tokens ───────────────────────────────────────────────────────────
 export const C = {
@@ -225,9 +226,9 @@ export function SearchBar({ value, onChange, placeholder = 'Pretraži...', width
 // ── Modal ──────────────────────────────────────────────────────────────────
 export function Modal({ open, onClose, title, children, width = 'max-w-lg' }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode; width?: string }) {
   if (!open) return null
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: '#0B1E3D80' }} onClick={onClose}>
-      <div className={`bg-white rounded-2xl shadow-xl w-full ${width} max-h-[90vh] overflow-y-auto`} onClick={e => e.stopPropagation()}>
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4" style={{ background: '#0B1E3D80' }} onClick={onClose}>
+      <div role="dialog" aria-modal="true" aria-label={title} className={`bg-white rounded-2xl shadow-xl w-full ${width} max-h-[calc(100dvh-2rem)] overflow-y-auto my-auto`} onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: C.s100 }}>
           <span style={{ fontFamily: 'DM Serif Display, Georgia, serif', color: C.navy, fontSize: '1.1rem' }}>{title}</span>
           <button onClick={onClose} className="opacity-40 hover:opacity-100 transition-opacity" style={{ color: C.ink5 }}>
@@ -236,7 +237,8 @@ export function Modal({ open, onClose, title, children, width = 'max-w-lg' }: { 
         </div>
         <div className="p-6">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 

@@ -87,9 +87,7 @@ export function Sidebar({ screen, onNav, user, onLogout, collapsed, onToggle }: 
     }}>
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-5 border-b" style={{ borderColor: C.navy2, minHeight: 64 }}>
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: C.teal }}>
-          <span style={{ color: '#fff', display: 'flex' }}><Ic.Drop /></span>
-        </div>
+        <img src={`${import.meta.env.BASE_URL}kapi-zivota-logo.png`} alt="Kapi Života" className="w-9 h-9 rounded-lg object-cover flex-shrink-0" />
         {!collapsed && (
           <div className="flex-1 overflow-hidden">
             <div className="text-white text-sm leading-tight whitespace-nowrap" style={{ fontFamily: 'DM Serif Display, Georgia, serif' }}>Portal Zavoda</div>

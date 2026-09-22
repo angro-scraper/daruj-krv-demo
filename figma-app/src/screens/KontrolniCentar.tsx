@@ -4,6 +4,7 @@ import { loadDonors } from '../donorStore'
 import { loadApprovals } from './Odobravanje'
 import { C, KpiCard, Card, CardHeader, PageWrap, StatusBadge, Progress } from '../components/ui'
 import { Ic } from '../components/Icons'
+import { ActionMap } from '../components/ActionMap'
 export default function KontrolniCentar({ onNav }: { onNav: (s: Screen) => void }) {
   const actions = loadActions()
   const donors = loadDonors()
@@ -53,6 +54,8 @@ export default function KontrolniCentar({ onNav }: { onNav: (s: Screen) => void 
         <KpiCard label="Kritične zalihe" value={String(kritZalihe)} sub="krvnih grupa ispod 30%" color={C.burgundy} icon={<Ic.Drop />} alert={kritZalihe > 0} onClick={() => onNav('izvestaji')} />
         <KpiCard label="Na čekanju (odo.)" value={String(ceka_odobravanje)} sub="zahteva za odobrenje" color="#d97706" icon={<Ic.Odobravanje />} alert={ceka_odobravanje > 0} onClick={() => onNav('odobravanje')} />
       </div>
+
+      <ActionMap actions={actions} onOpenActions={() => onNav('akcije')} />
 
       <div className="grid lg:grid-cols-3 gap-5">
         {/* Zalihe */}

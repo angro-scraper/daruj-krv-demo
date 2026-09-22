@@ -31,9 +31,7 @@ export default function Prijava({ onLogin }: { onLogin: (u: Korisnik) => void })
         <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: `radial-gradient(circle at 30% 70%, ${C.teal}22 0%, transparent 60%), radial-gradient(circle at 80% 20%, ${C.burgundy}18 0%, transparent 50%)` }} />
         <div className="relative z-10">
           <div className="flex items-center gap-3 mb-16">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: C.teal }}>
-              <span style={{ color: C.white, display: 'flex' }}><Ic.Drop /></span>
-            </div>
+            <img src={`${import.meta.env.BASE_URL}kapi-zivota-logo.png`} alt="Kapi Života" className="w-10 h-10 rounded-xl object-cover" />
             <div>
               <div className="text-white text-xl" style={{ fontFamily: 'DM Serif Display, Georgia, serif' }}>Portal Zavoda</div>
               <div className="text-xs mt-0.5" style={{ color: C.teal3 }}>za transfuziju krvi</div>
@@ -60,9 +58,7 @@ export default function Prijava({ onLogin }: { onLogin: (u: Korisnik) => void })
       <div className="flex-1 flex items-center justify-center p-6" style={{ background: C.s50 }}>
         <div className="w-full max-w-md flex flex-col gap-6">
           <div className="lg:hidden flex items-center gap-3 justify-center">
-            <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: C.teal }}>
-              <span style={{ color: C.white, display: 'flex' }}><Ic.Drop /></span>
-            </div>
+            <img src={`${import.meta.env.BASE_URL}kapi-zivota-logo.png`} alt="Kapi Života" className="w-9 h-9 rounded-lg object-cover" />
             <div className="text-xl" style={{ fontFamily: 'DM Serif Display, Georgia, serif', color: C.navy }}>Portal Zavoda</div>
           </div>
 
@@ -135,4 +131,3 @@ export default function Prijava({ onLogin }: { onLogin: (u: Korisnik) => void })
     </div>
   )
 }
-
