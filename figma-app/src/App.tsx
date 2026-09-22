@@ -218,7 +218,7 @@ export default function App() {
       const requested = screenFromHash()
       const next = requested && canOpen(user.uloga, requested) ? requested : defaultScreen(user.uloga)
       setScreen(next)
-      if (requested !== next) setScreenHash(next)
+      setScreenHash(next)
     }
     syncHash()
     window.addEventListener('hashchange', syncHash)

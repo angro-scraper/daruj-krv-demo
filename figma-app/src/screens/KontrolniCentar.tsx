@@ -1,11 +1,17 @@
-import { ZALIHE, AKCIJE, DAVALACI, ODOBRAVANJE_LISTA, INTEGRACIJE, AUDIT_LOGOVI, type Screen } from '../data'
+import { ZALIHE, INTEGRACIJE, AUDIT_LOGOVI, type Screen } from '../data'
+import { loadActions } from '../actionStore'
+import { loadDonors } from '../donorStore'
+import { loadApprovals } from './Odobravanje'
 import { C, KpiCard, Card, CardHeader, PageWrap, StatusBadge, Progress } from '../components/ui'
 import { Ic } from '../components/Icons'
 export default function KontrolniCentar({ onNav }: { onNav: (s: Screen) => void }) {
+  const actions = loadActions()
+  const donors = loadDonors()
+  const approvals = loadApprovals()
   const kritZalihe = ZALIHE.filter(z => z.kolicina / z.max < 0.3).length
-  const aktivnaAkcija = AKCIJE.find(a => a.status === 'aktivna')
-  const cekaDavalaca = DAVALACI.filter(d => d.status === 'ceka').length
-  const ceka_odobravanje = ODOBRAVANJE_LISTA.filter(o => o.status === 'ceka').length
+  const aktivnaAkcija = actions.find(a => a.status === 'aktivna')
+  const cekaDavalaca = donors.filter(d => d.status === 'ceka').length
+  const ceka_odobravanje = approvals.filter(o => o.status === 'ceka').length
   const intGreska = INTEGRACIJE.filter(i => i.status === 'greska' || i.status === 'degradovana').length
 
   return (
@@ -42,10 +48,10 @@ export default function KontrolniCentar({ onNav }: { onNav: (s: Screen) => void 
 
       {/* KPI red */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard label="Donori danas" value={String(DAVALACI.length)} sub={`${cekaDavalaca} u čekaonici`} color={C.teal} icon={<Ic.Prijem />} />
-        <KpiCard label="Aktivna akcija" value={aktivnaAkcija ? `${aktivnaAkcija.donacije}/${aktivnaAkcija.kapacitet}` : '—'} sub={aktivnaAkcija?.naziv ?? 'Nema aktivne akcije'} color={C.navy3} icon={<Ic.Akcije />} />
-        <KpiCard label="Kritične zalihe" value={String(kritZalihe)} sub="krvnih grupa ispod 30%" color={C.burgundy} icon={<Ic.Drop />} alert={kritZalihe > 0} />
-        <KpiCard label="Na čekanju (odo.)" value={String(ceka_odobravanje)} sub="zahteva za odobrenje" color="#d97706" icon={<Ic.Odobravanje />} alert={ceka_odobravanje > 0} />
+        <KpiCard label="Donori danas" value={String(donors.length)} sub={`${cekaDavalaca} u čekaonici`} color={C.teal} icon={<Ic.Prijem />} onClick={() => onNav('prijem_davalaca')} />
+        <KpiCard label="Aktivna akcija" value={aktivnaAkcija ? `${aktivnaAkcija.donacije}/${aktivnaAkcija.kapacitet}` : '—'} sub={aktivnaAkcija?.naziv ?? 'Nema aktivne akcije'} color={C.navy3} icon={<Ic.Akcije />} onClick={() => onNav('akcije')} />
+        <KpiCard label="Kritične zalihe" value={String(kritZalihe)} sub="krvnih grupa ispod 30%" color={C.burgundy} icon={<Ic.Drop />} alert={kritZalihe > 0} onClick={() => onNav('izvestaji')} />
+        <KpiCard label="Na čekanju (odo.)" value={String(ceka_odobravanje)} sub="zahteva za odobrenje" color="#d97706" icon={<Ic.Odobravanje />} alert={ceka_odobravanje > 0} onClick={() => onNav('odobravanje')} />
       </div>
 
       <div className="grid lg:grid-cols-3 gap-5">
@@ -135,7 +141,7 @@ export default function KontrolniCentar({ onNav }: { onNav: (s: Screen) => void 
             <button onClick={() => onNav('odobravanje')} className="text-xs font-medium" style={{ color: C.teal }}>Sve →</button>
           } />
           <div className="divide-y" style={{ borderColor: C.s100 }}>
-            {ODOBRAVANJE_LISTA.filter(o => o.status === 'ceka').slice(0, 3).map(o => (
+            {approvals.filter(o => o.status === 'ceka').slice(0, 3).map(o => (
               <div key={o.id} className="flex items-center gap-3 px-5 py-3">
                 <div className="flex-1">
                   <div className="text-sm font-medium leading-snug" style={{ color: C.ink7 }}>{o.naziv}</div>
@@ -169,4 +175,3 @@ export default function KontrolniCentar({ onNav }: { onNav: (s: Screen) => void 
     </PageWrap>
   )
 }
-

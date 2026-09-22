@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { INTEGRACIJE, type Integracija } from '../data'
-import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, Progress } from '../components/ui'
+import { downloadCsv } from '../actionStore'
+import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, Progress, Input, Select } from '../components/ui'
 import { Ic } from '../components/Icons'
 
 const INCIDENTI = [
@@ -9,20 +10,47 @@ const INCIDENTI = [
   { id: 'INC-040', naziv: 'LIS — povremeni timeout', integracija: 'LIS', datum: '19. sep 2026, 14:22', trajanje: '5 min', status: 'zatvoren', ozbiljnost: 'niska' },
   { id: 'INC-039', naziv: 'SMS gateway — rate limit', integracija: 'SMS gateway', datum: '18. sep 2026, 10:05', trajanje: '12 min', status: 'zatvoren', ozbiljnost: 'niska' },
 ]
+type Incident = typeof INCIDENTI[number]
+const INCIDENT_KEY = 'portal-figma-incidents-v1'
+function loadIncidents(): Incident[] {
+  try { const saved = JSON.parse(localStorage.getItem(INCIDENT_KEY) || 'null'); return Array.isArray(saved) ? saved : INCIDENTI } catch { return INCIDENTI }
+}
 
 export default function APIIntegracije({ initialTab = 'integracije' }: { initialTab?: string }) {
+  const [incidents, setIncidents] = useState(loadIncidents)
   const [tab, setTab] = useState(initialTab)
   const [selInt, setSelInt] = useState<Integracija | null>(null)
   const [detModal, setDetModal] = useState(false)
+  const [incidentModal, setIncidentModal] = useState(false)
+  const [selIncident, setSelIncident] = useState<Incident | null>(null)
+  const [incidentName, setIncidentName] = useState('')
+  const [incidentIntegration, setIncidentIntegration] = useState(INTEGRACIJE[0]?.naziv || '')
+  const [incidentSeverity, setIncidentSeverity] = useState('niska')
+  const [feedback, setFeedback] = useState('')
+  const saveIncidents = (next: Incident[]) => { setIncidents(next); localStorage.setItem(INCIDENT_KEY, JSON.stringify(next)) }
+  const recordIncident = () => {
+    if (!incidentName.trim()) { setFeedback('Unesite naziv incidenta.'); return }
+    const next: Incident = {
+      id: `INC-${Date.now()}`, naziv: incidentName.trim(), integracija: incidentIntegration,
+      datum: new Date().toLocaleString('sr-Latn-RS'), trajanje: 'U toku', status: 'otvoren', ozbiljnost: incidentSeverity,
+    }
+    saveIncidents([next, ...incidents]); setIncidentModal(false); setIncidentName('')
+    setFeedback('Incident je evidentiran u demo portalu.')
+  }
+  const testIntegration = (integration: Integracija) => {
+    setFeedback(`Za ${integration.naziv} nije konfigurisan stvarni API endpoint. Prikazani status je Figma demonstracija; test nije izvršen.`)
+    setDetModal(false)
+  }
 
   return (
     <PageWrap>
       <Tabs tabs={[
         { id: 'integracije', label: 'Integracije' },
-        { id: 'incidenti', label: `Incidenti (${INCIDENTI.filter(i => i.status === 'otvoren').length})` },
+        { id: 'incidenti', label: `Incidenti (${incidents.filter(i => i.status === 'otvoren').length})` },
         { id: 'monitoring', label: 'Monitoring' },
         { id: 'verzije', label: 'Verzije API-ja' },
       ]} active={tab} onChange={setTab} />
+      {feedback && <div role="status" className="rounded-lg px-4 py-2 text-sm" style={{ background: C.tealBg, color: C.teal2 }}>{feedback}</div>}
 
       {tab === 'integracije' && (
         <>
@@ -67,8 +95,8 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
                   <TD><StatusBadge status={i.status === 'aktivna' ? 'aktivna' : i.status} /></TD>
                   <TD>
                     <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                      <Btn variant="ghost" size="sm" title="Ping"><Ic.Refresh /></Btn>
-                      <Btn variant="ghost" size="sm"><Ic.Eye /></Btn>
+                      <Btn variant="ghost" size="sm" title="Ping" onClick={() => testIntegration(i)}><Ic.Refresh /></Btn>
+                      <Btn variant="ghost" size="sm" onClick={() => { setSelInt(i); setDetModal(true) }}><Ic.Eye /></Btn>
                     </div>
                   </TD>
                 </TR>
@@ -81,11 +109,11 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
       {tab === 'incidenti' && (
         <div className="flex flex-col gap-4">
           <div className="flex items-center justify-end">
-            <Btn><Ic.Plus /> Prijavi incident</Btn>
+            <Btn onClick={() => setIncidentModal(true)}><Ic.Plus /> Prijavi incident</Btn>
           </div>
           <Card>
             <Table headers={['ID', 'Naziv', 'Integracija', 'Datum', 'Trajanje', 'Ozbiljnost', 'Status', 'Akcija']}>
-              {INCIDENTI.map(inc => (
+              {incidents.map(inc => (
                 <TR key={inc.id}>
                   <TD mono muted>{inc.id}</TD>
                   <TD><span className="font-medium">{inc.naziv}</span></TD>
@@ -104,8 +132,8 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
                   </TD>
                   <TD>
                     <div className="flex gap-2">
-                      <Btn variant="ghost" size="sm"><Ic.Eye /></Btn>
-                      {inc.status === 'otvoren' && <Btn size="sm" variant="secondary">Zatvori</Btn>}
+                      <Btn variant="ghost" size="sm" onClick={() => setSelIncident(inc)}><Ic.Eye /></Btn>
+                      {inc.status === 'otvoren' && <Btn size="sm" variant="secondary" onClick={() => { if (!confirm(`Zatvoriti incident ${inc.id}?`)) return; saveIncidents(incidents.map(item => item.id === inc.id ? { ...item, status: 'zatvoren' } : item)); setFeedback(`Incident ${inc.id} je zatvoren u demo evidenciji.`) }}>Zatvori</Btn>}
                     </div>
                   </TD>
                 </TR>
@@ -130,7 +158,7 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
                   </div>
                   <div className="flex items-center gap-3">
                     <StatusBadge status={i.status === 'aktivna' ? 'aktivna' : i.status} />
-                    <Btn variant="ghost" size="sm"><Ic.Refresh /></Btn>
+                    <Btn variant="ghost" size="sm" onClick={() => testIntegration(i)}><Ic.Refresh /></Btn>
                   </div>
                 </div>
 
@@ -143,20 +171,19 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
                   <Progress value={i.uptime} max={100} color={i.uptime > 98 ? C.teal : i.uptime > 90 ? '#d97706' : C.burgundy} />
                 </div>
 
-                {/* Lažni response time bar */}
+                {/* Stabilan ilustrativni prikaz iz Figma prototipa, bez lažnog live merenja. */}
                 <div className="flex items-center gap-1 h-6">
                   {Array.from({ length: 24 }, (_, h) => {
-                    const prob = i.status === 'greska' ? 0.7 : i.status === 'degradovana' ? 0.3 : 0.05
-                    const isError = Math.random() < prob && h > 18
+                    const isError = i.status === 'greska' && h > 18
                     return (
                       <div key={h} className="flex-1 rounded-sm"
-                        style={{ height: `${Math.random() * 80 + 20}%`, background: isError ? C.burgundy : i.status === 'degradovana' && h > 20 ? '#d97706' : C.teal + '80' }} />
+                        style={{ height: `${35 + (h * 13) % 65}%`, background: isError ? C.burgundy : i.status === 'degradovana' && h > 20 ? '#d97706' : C.teal + '80' }} />
                     )
                   })}
                 </div>
                 <div className="flex justify-between text-xs mt-1" style={{ color: C.ink3 }}>
-                  <span>24h nazad</span>
-                  <span>Sada</span>
+                  <span>Ilustrativni prikaz (demo)</span>
+                  <span>Nije live merenje</span>
                 </div>
 
                 {i.incidenti > 0 && (
@@ -173,7 +200,7 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
       {tab === 'verzije' && (
         <Card>
           <CardHeader title="API verzije i changelog" action={
-            <Btn variant="secondary" size="sm"><Ic.Plus /> Nova verzija</Btn>
+            <Btn variant="secondary" size="sm" onClick={() => setFeedback('Objava nove API verzije zahteva povezani serverski servis i odobrenje; u Figma prototipu nije dostupna.')}><Ic.Plus /> Nova verzija</Btn>
           } />
           <Table headers={['Integracija', 'Trenutna verzija', 'Prethodna', 'Datum ažuriranja', 'Changelog', 'Akcija']}>
             {INTEGRACIJE.map(i => (
@@ -185,10 +212,10 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
                 <TD mono muted>—</TD>
                 <TD mono>{i.poslednjiPing.slice(0, 11)}</TD>
                 <TD>
-                  <button className="text-xs font-medium" style={{ color: C.teal }}>Pogledaj →</button>
+                  <button onClick={() => { setSelInt(i); setDetModal(true) }} className="text-xs font-medium" style={{ color: C.teal }}>Pogledaj →</button>
                 </TD>
                 <TD>
-                  <Btn variant="ghost" size="sm"><Ic.Download /></Btn>
+                  <Btn variant="ghost" size="sm" onClick={() => downloadCsv(`integracija-${i.id}.csv`, [['ID', 'Naziv', 'Verzija', 'Status'], [i.id, i.naziv, i.verzija, i.status]])}><Ic.Download /></Btn>
                 </TD>
               </TR>
             ))}
@@ -222,11 +249,28 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
             </div>
             <div className="flex gap-3">
               <Btn variant="secondary" onClick={() => setDetModal(false)}>Zatvori</Btn>
-              <Btn><Ic.Refresh /> Testiraj konekciju</Btn>
-              {selInt.status === 'greska' && <Btn variant="secondary">Oporavak</Btn>}
+              <Btn onClick={() => testIntegration(selInt)}><Ic.Refresh /> Testiraj konekciju</Btn>
+              {selInt.status === 'greska' && <Btn variant="secondary" onClick={() => testIntegration(selInt)}>Oporavak</Btn>}
             </div>
           </div>
         )}
+      </Modal>
+      <Modal open={incidentModal} onClose={() => setIncidentModal(false)} title="Prijavi incident">
+        <div className="flex flex-col gap-4">
+          <Input label="Naziv incidenta" value={incidentName} onChange={setIncidentName} />
+          <Select label="Integracija" options={INTEGRACIJE.map(item => item.naziv)} value={incidentIntegration} onChange={setIncidentIntegration} />
+          <Select label="Ozbiljnost" options={['niska', 'visoka', 'kritična']} value={incidentSeverity} onChange={setIncidentSeverity} />
+          <div className="flex justify-end gap-3"><Btn variant="secondary" onClick={() => setIncidentModal(false)}>Otkaži</Btn><Btn onClick={recordIncident}>Evidentiraj incident</Btn></div>
+        </div>
+      </Modal>
+      <Modal open={Boolean(selIncident)} onClose={() => setSelIncident(null)} title="Detalji incidenta">
+        {selIncident && <div className="flex flex-col gap-3 text-sm" style={{ color: C.ink7 }}>
+          <div className="text-lg font-medium" style={{ color: C.navy }}>{selIncident.naziv}</div>
+          <div>ID: {selIncident.id}</div><div>Integracija: {selIncident.integracija}</div>
+          <div>Prijavljeno: {selIncident.datum}</div><div>Ozbiljnost: {selIncident.ozbiljnost}</div>
+          <div>Status: {incidents.find(item => item.id === selIncident.id)?.status || selIncident.status}</div>
+          <Btn variant="secondary" onClick={() => setSelIncident(null)}>Zatvori prikaz</Btn>
+        </div>}
       </Modal>
     </PageWrap>
   )

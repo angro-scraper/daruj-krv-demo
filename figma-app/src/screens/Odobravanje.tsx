@@ -6,7 +6,7 @@ import { Ic } from '../components/Icons'
 const APPROVALS_KEY = 'portal-figma-approvals-v1'
 const NEWS_KEY = 'portal-figma-vesti-v1'
 
-function loadApprovals(): Odobravanje[] {
+export function loadApprovals(): Odobravanje[] {
   let previous: Odobravanje[] = ODOBRAVANJE_LISTA
   try {
     const stored = JSON.parse(localStorage.getItem(APPROVALS_KEY) || 'null')

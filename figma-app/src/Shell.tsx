@@ -1,6 +1,7 @@
 import { type Korisnik, type Screen, ROLE_LABELS } from './data'
 import { C } from './components/ui'
 import { Ic } from './components/Icons'
+import { ROUTE_BY_SCREEN } from './routes'
 
 // ── Nav definition per role ────────────────────────────────────────────────
 const NAV_SUPER_ADMIN = [
@@ -137,6 +138,9 @@ export function Sidebar({ screen, onNav, user, onLogout, collapsed, onToggle }: 
 
       {/* Rola badge i user */}
       <div className="border-t p-3" style={{ borderColor: C.navy2 }}>
+        {isSA && <a href={`/admin/operativno.html#portal/${ROUTE_BY_SCREEN[screen]}`} target="_blank" rel="noreferrer"
+          title="Postojeći operativni alati" className="flex items-center gap-2 px-1 py-2 mb-2 text-xs rounded hover:bg-white/10"
+          style={{ color: C.teal3 }}><Ic.Akcije />{!collapsed && 'Postojeći operativni alati'}</a>}
         {!collapsed && (
           <div className="mb-2 px-1">
             <span className="text-xs font-medium" style={{ color: C.ink3 }}>
@@ -175,6 +179,7 @@ export function TopBar({ title, subtitle, onMenuToggle, onAlerts }: { title: str
         {subtitle && <p className="text-xs mt-0.5 truncate" style={{ color: C.ink3 }}>{subtitle}</p>}
       </div>
       <div className="flex items-center gap-3">
+        <span className="hidden sm:inline-flex text-[10px] font-semibold tracking-wide rounded-md px-2 py-1" style={{ background: C.tealBg, color: C.teal2 }}>DEMO · bez stvarnih podataka</span>
         {onAlerts && <button onClick={onAlerts} title="Red odobravanja" className="relative w-9 h-9 rounded-lg flex items-center justify-center hover:bg-surface-100 transition-colors" style={{ color: C.ink5 }}>
           <Ic.Bell />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full pulse-dot" style={{ background: C.burgundy }} />

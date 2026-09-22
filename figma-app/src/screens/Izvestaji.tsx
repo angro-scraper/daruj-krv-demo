@@ -7,17 +7,25 @@ import { Ic } from '../components/Icons'
 const MES = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Avg', 'Sep']
 const DON = [312, 287, 356, 298, 421, 389, 445, 402, 234]
 const FILIJALE = ['Sve', 'Beograd', 'Novi Sad', 'Niš', 'Kragujevac']
-const PERIODI = ['Tekuća godina', 'Q3 2026', 'Q2 2026', 'Q1 2026', '2025']
+const MONTH_INDEX: Record<string, number> = { jan: 1, feb: 2, mar: 3, apr: 4, maj: 5, jun: 6, jul: 7, avg: 8, sep: 9, okt: 10, nov: 11, dec: 12 }
+function actionMonth(date: string): number { return MONTH_INDEX[date.toLowerCase().match(/\b(jan|feb|mar|apr|maj|jun|jul|avg|sep|okt|nov|dec)\b/)?.[0] || ''] || 0 }
+function actionYear(date: string): number { return Number(date.match(/\b(?:19|20|21)\d{2}\b/)?.[0] || 0) }
 
 export default function Izvestaji() {
   const [actions] = useState(loadActions)
   const [tab, setTab] = useState('pregled')
   const [filijala, setFilijala] = useState('Sve')
-  const [period, setPeriod] = useState('Tekuća godina')
+  const [period, setPeriod] = useState('Sve vreme')
   const [actionId, setActionId] = useState('all')
+  const years = [...new Set(actions.map(action => actionYear(action.datum)).filter(Boolean))].sort((a, b) => b - a)
+  const periods = ['Sve vreme', 'Tekuća godina', ...years.flatMap(year => [String(year), `Q1 ${year}`, `Q2 ${year}`, `Q3 ${year}`, `Q4 ${year}`])]
   const selectedAction = actions.find(action => action.id === actionId)
   const reportActions = actions.filter(action => (actionId === 'all' || action.id === actionId)
-    && (filijala === 'Sve' || action.filijala === filijala))
+    && (filijala === 'Sve' || action.filijala === filijala)
+    && (period === 'Sve vreme' || (period === 'Tekuća godina' && actionYear(action.datum) === new Date().getFullYear())
+      || (period === String(actionYear(action.datum)))
+      || (period.startsWith('Q') && actionYear(action.datum) === Number(period.slice(3))
+        && Math.ceil(actionMonth(action.datum) / 3) === Number(period[1]))))
   const maxD = Math.max(...DON)
 
   function exportActions() {
@@ -44,7 +52,7 @@ export default function Izvestaji() {
         </select>
         <select value={period} onChange={e => setPeriod(e.target.value)}
           className="h-10 px-3 rounded-lg border text-sm outline-none" style={{ borderColor: C.s200, background: C.white, color: C.ink7 }}>
-          {PERIODI.map(p => <option key={p}>{p}</option>)}
+          {periods.map(p => <option key={p}>{p}</option>)}
         </select>
         <select aria-label="Izaberi akciju za izveštaj" value={actionId} onChange={e => { setActionId(e.target.value); setTab('akcije') }}
           className="h-10 px-3 rounded-lg border text-sm outline-none max-w-64" style={{ borderColor: C.s200, background: C.white, color: C.ink7 }}>
@@ -54,7 +62,8 @@ export default function Izvestaji() {
         <Btn variant="secondary" onClick={exportActions}><Ic.Download /> Izvezi izveštaj</Btn>
       </div>
 
-      {selectedAction && <Card>
+      {selectedAction && reportActions.length === 0 && <div role="status" className="rounded-xl border p-5 text-sm" style={{ background: C.white, borderColor: C.s100, color: C.ink5 }}>Izabrana akcija ne pripada odabranoj filijali ili periodu. Promenite filter za prikaz izveštaja.</div>}
+      {selectedAction && reportActions.length > 0 && <Card>
         <div className="p-5">
           <div className="text-xs uppercase tracking-wide font-medium mb-2" style={{ color: C.teal2 }}>IZVEŠTAJ ZA IZABRANU AKCIJU</div>
           <h2 className="text-xl mb-1" style={{ color: C.navy, fontFamily: 'DM Serif Display, Georgia, serif' }}>{selectedAction.naziv}</h2>
