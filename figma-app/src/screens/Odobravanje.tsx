@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { ODOBRAVANJE_LISTA, type Odobravanje, type Vest } from '../data'
 import { C, PageWrap, Card, CardHeader, StatusBadge, Table, TR, TD, Btn, Modal, ConfirmDialog, EmptyState } from '../components/ui'
 import { Ic } from '../components/Icons'
+import { connectedDemoEnabled, getDemoNews, setDemoNewsStatus } from '../demoApi'
 
 const APPROVALS_KEY = 'portal-figma-approvals-v1'
 const NEWS_KEY = 'portal-figma-vesti-v1'
 
 export function loadApprovals(): Odobravanje[] {
+  if (connectedDemoEnabled) return ODOBRAVANJE_LISTA.filter(item => item.tip !== 'Vest')
   let previous: Odobravanje[] = ODOBRAVANJE_LISTA
   try {
     const stored = JSON.parse(localStorage.getItem(APPROVALS_KEY) || 'null')
@@ -34,14 +36,33 @@ export default function OdobravanjeScreen() {
   const [confirmAkcija, setConfirmAkcija] = useState<'odobreno' | 'odbijeno'>('odobreno')
   const [filterStatus, setFilterStatus] = useState<'sve' | 'ceka' | 'odobreno' | 'odbijeno'>('ceka')
   const [komentar, setKomentar] = useState('')
+  const [error, setError] = useState('')
 
-  useEffect(() => { localStorage.setItem(APPROVALS_KEY, JSON.stringify(lista)) }, [lista])
+  useEffect(() => { if (!connectedDemoEnabled) localStorage.setItem(APPROVALS_KEY, JSON.stringify(lista)) }, [lista])
+  useEffect(() => {
+    if (!connectedDemoEnabled) return
+    getDemoNews().then(news => setLista(previous => [
+      ...previous.filter(item => !item.id.startsWith('OD-demo-')),
+      ...news.filter(vest => vest.status === 'recenzija').map(vest => ({
+        id: `OD-demo-${vest.id}`, tip: 'Vest', naziv: vest.title, podnosilac: vest.author,
+        datum: new Date(vest.createdAt).toLocaleDateString('sr-Latn-RS'), status: 'ceka' as const, hitnost: 'normalno' as const,
+      })),
+    ])).catch(reason => setError(reason instanceof Error ? reason.message : 'Red vesti nije učitan.'))
+  }, [])
 
   const filtered = lista.filter(o => filterStatus === 'sve' || o.status === filterStatus)
   const naCekanju = lista.filter(o => o.status === 'ceka').length
 
-  function handleOdluka(akcija: 'odobreno' | 'odbijeno') {
+  async function handleOdluka(akcija: 'odobreno' | 'odbijeno') {
     if (!selItem) return
+    if (connectedDemoEnabled && selItem.id.startsWith('OD-demo-')) {
+      try {
+        await setDemoNewsStatus(selItem.id.slice('OD-demo-'.length), akcija === 'odobreno' ? 'odobreno' : 'nacrt')
+        setLista(prev => prev.map(item => item.id === selItem.id ? { ...item, status: akcija } : item))
+        setError(''); setModalOpen(false); setKomentar('')
+      } catch (reason) { setError(reason instanceof Error ? reason.message : 'Odluka nije sačuvana na servisu.') }
+      return
+    }
     setLista(prev => prev.map(o => o.id === selItem.id ? { ...o, status: akcija } : o))
     if (selItem.tip === 'Vest') {
       try {
@@ -57,6 +78,7 @@ export default function OdobravanjeScreen() {
 
   return (
     <PageWrap>
+      {error && <p role="alert" className="rounded-lg border p-3 text-sm" style={{ borderColor: C.burgundy, color: C.burgundy }}>{error}</p>}
       <div className="flex items-center gap-3 flex-wrap">
         <div className="flex gap-1 p-1 rounded-lg" style={{ background: C.s100 }}>
           {(['ceka', 'odobreno', 'odbijeno', 'sve'] as const).map(s => {

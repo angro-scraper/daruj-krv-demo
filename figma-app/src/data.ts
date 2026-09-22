@@ -32,7 +32,7 @@ export interface Davalac {
 export interface Vest {
   id: string; naslov: string; status: 'nacrt' | 'recenzija' | 'odobreno' | 'objavljeno' | 'arhivirano'
   autor: string; datum: string; kategorija: string; pregledi: number
-  verzija: number; odobrio?: string; sadrzaj: string
+  verzija: number; odobrio?: string; sadrzaj: string; imageId?: string | null; imageUrl?: string | null
 }
 
 export interface Odobravanje {

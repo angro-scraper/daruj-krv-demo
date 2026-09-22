@@ -2,9 +2,23 @@ import { useEffect, useRef, useState } from 'react'
 import { VESTI, type Vest } from '../data'
 import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, Input, Select, SearchBar, EmptyState } from '../components/ui'
 import { Ic } from '../components/Icons'
+import { connectedDemoEnabled, createDemoNews, demoMediaUrl, getDemoNews, setDemoNewsStatus, updateDemoNews, uploadDemoImage, type DemoNews } from '../demoApi'
 
 const KAT = ['Sve kategorije', 'Akcija', 'Edukacija', 'Izveštaj', 'Obaveštenje', 'Intervju']
 const STORAGE_KEY = 'portal-figma-vesti-v1'
+const IMPORTED_KEY = 'portal-figma-news-imported-v1'
+function loadLegacyNews(): Vest[] {
+  try {
+    const imported = new Set(JSON.parse(localStorage.getItem(IMPORTED_KEY) || '[]') as string[])
+    return loadVesti().filter(item => !VESTI.some(seed => seed.id === item.id) && !imported.has(item.id))
+  } catch { return [] }
+}
+function toVest(item: DemoNews): Vest {
+  return { id: item.id, naslov: item.title, autor: item.author, kategorija: item.category,
+    sadrzaj: item.content, imageId: item.imageId, imageUrl: demoMediaUrl(item.imageUrl),
+    status: item.status, verzija: item.version, pregledi: 0,
+    datum: new Date(item.createdAt).toLocaleDateString('sr-Latn-RS') }
+}
 
 function loadVesti(): Vest[] {
   try {
@@ -26,7 +40,7 @@ function loadVesti(): Vest[] {
 }
 
 export default function Studio() {
-  const [vesti, setVesti] = useState<Vest[]>(loadVesti)
+  const [vesti, setVesti] = useState<Vest[]>(connectedDemoEnabled ? [] : loadVesti)
   const [tab, setTab] = useState('vesti')
   const [search, setSearch] = useState('')
   const [kat, setKat] = useState('Sve kategorije')
@@ -44,10 +58,49 @@ export default function Studio() {
   const textRef = useRef<HTMLTextAreaElement>(null)
   const [assetNotice, setAssetNotice] = useState('')
   const [assetPreview, setAssetPreview] = useState<{ name: string; url: string; type: string } | null>(null)
+  const [imageFile, setImageFile] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [busy, setBusy] = useState(false)
+  const [legacyNews, setLegacyNews] = useState<Vest[]>(connectedDemoEnabled ? loadLegacyNews : [])
 
-  useEffect(() => { localStorage.setItem(STORAGE_KEY, JSON.stringify(vesti)) }, [vesti])
+  useEffect(() => {
+    if (!connectedDemoEnabled) { localStorage.setItem(STORAGE_KEY, JSON.stringify(vesti)); return }
+  }, [vesti])
+  useEffect(() => {
+    if (!connectedDemoEnabled) return
+    getDemoNews().then(items => setVesti(items.map(toVest)))
+      .catch(error => setMessage(error instanceof Error ? error.message : 'Vesti nisu učitane sa servisa.'))
+  }, [])
+  useEffect(() => () => { if (imagePreview) URL.revokeObjectURL(imagePreview) }, [imagePreview])
 
-  function saveVest(item: Vest, nextStatus: Vest['status'] = item.status) {
+  async function saveVest(item: Vest, nextStatus: Vest['status'] = item.status) {
+    if (busy) return
+    if (connectedDemoEnabled) {
+      setBusy(true)
+      try {
+        let saved: DemoNews
+        if (nextStatus === 'objavljeno' || nextStatus === 'arhivirano') {
+          const persisted = vesti.find(v => v.id === item.id)
+          if (imageFile || !persisted || persisted.naslov !== item.naslov || persisted.sadrzaj !== item.sadrzaj || persisted.autor !== item.autor || persisted.kategorija !== item.kategorija) {
+            throw new Error('Sačuvajte izmene i pošaljite vest na novu proveru pre objave.')
+          }
+          saved = await setDemoNewsStatus(item.id, nextStatus)
+        } else {
+          const media = imageFile ? await uploadDemoImage(imageFile) : null
+          const input = { title: item.naslov, author: item.autor, category: item.kategorija, content: item.sadrzaj, imageId: media?.id || item.imageId || null }
+          saved = item.id.startsWith('local-') ? await createDemoNews(input) : await updateDemoNews(item.id, input)
+          if (nextStatus === 'recenzija') saved = await setDemoNewsStatus(saved.id, 'recenzija')
+        }
+        const updated = toVest(saved)
+        setVesti(current => current.some(v => v.id === item.id) ? current.map(v => v.id === item.id ? updated : v) : [updated, ...current])
+        setEditor(updated)
+        setImageFile(null); setImagePreview(null)
+        setMessage(saved.status === 'objavljeno' ? 'Vest je objavljena u demo servisu i dostupna aplikaciji.' : saved.status === 'recenzija' ? 'Vest je poslata na proveru.' : 'Nacrt je trajno sačuvan u demo servisu.')
+      } catch (error) {
+        setMessage(error instanceof Error ? `Nije sačuvano: ${error.message}` : 'Vest nije sačuvana. Proverite vezu.')
+      } finally { setBusy(false) }
+      return
+    }
     const updated = { ...item, status: nextStatus, verzija: item.verzija + 1 }
     setVesti(current => current.some(v => v.id === item.id)
       ? current.map(v => v.id === item.id ? updated : v)
@@ -56,14 +109,33 @@ export default function Studio() {
     setMessage(nextStatus === 'objavljeno' ? 'Vest je objavljena u demonstracionom portalu.' : 'Nacrt je sačuvan i nalazi se u listi vesti.')
   }
 
+  async function importLegacyNews() {
+    if (busy) return
+    setBusy(true)
+    try {
+      const imported = new Set(JSON.parse(localStorage.getItem(IMPORTED_KEY) || '[]') as string[])
+      for (const item of legacyNews) {
+        const saved = await createDemoNews({ title: item.naslov, author: item.autor, category: item.kategorija, content: item.sadrzaj, imageId: null })
+        imported.add(item.id)
+        localStorage.setItem(IMPORTED_KEY, JSON.stringify([...imported]))
+        setVesti(current => [toVest(saved), ...current])
+        setLegacyNews(current => current.filter(vest => vest.id !== item.id))
+      }
+      setMessage('Stare lokalne vesti su prenete kao nacrti. Slike treba ponovo postaviti.')
+    } catch (error) {
+      setMessage(error instanceof Error ? `Prenos je prekinut: ${error.message}` : 'Prenos nije uspeo.')
+    } finally { setBusy(false) }
+  }
+
   function createVest() {
     if (!newTitle.trim()) { setMessage('Unesite naslov vesti.'); return }
     const item: Vest = {
-      id: `V-${Date.now()}`, naslov: newTitle.trim(), status: 'nacrt',
+      id: connectedDemoEnabled ? `local-${Date.now()}` : `V-${Date.now()}`, naslov: newTitle.trim(), status: 'nacrt',
       autor: newAuthor.trim() || 'Redakcija', datum: new Date().toLocaleDateString('sr-Latn-RS'),
       kategorija: newCategory, pregledi: 0, verzija: 0, sadrzaj: '',
     }
     setNewTitle(''); setNewAuthor(''); setNewCategory('Akcija'); setNovaModal(false)
+    setImageFile(null); setImagePreview(null)
     setEditor(item); setMessage('Nova vest je otvorena. Sačuvajte nacrt u uredniku.')
   }
 
@@ -74,6 +146,13 @@ export default function Studio() {
   }
   function addFile(file?: File) {
     if (!file) return
+    if (file.type.startsWith('image/') && editor && connectedDemoEnabled) {
+      if (file.size > 2 * 1024 * 1024) { setMessage('Slika može imati najviše 2 MB.'); return }
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) { setMessage('Koristite JPEG, PNG ili WebP sliku.'); return }
+      setImageFile(file); setImagePreview(URL.createObjectURL(file))
+      setMessage('Slika je izabrana. Kliknite „Sačuvaj” da bude trajno povezana sa vešću.')
+      return
+    }
     setAttachments(current => [...current, { name: file.name, type: file.type, url: URL.createObjectURL(file) }])
     setMessage(`Fajl „${file.name}” je dostupan u ovoj sesiji. Za trajno čuvanje je potreban serverski servis.`)
   }
@@ -111,7 +190,7 @@ export default function Studio() {
           <StatusBadge status={editor.status} />
           <span className="text-xs font-mono" style={{ color: C.ink3, fontFamily: 'JetBrains Mono, monospace' }}>v{editor.verzija}</span>
           <Btn variant="secondary" size="sm" onClick={() => { setPrevVest(editor); setPreviewModal(true) }}><Ic.Eye /> Pregled</Btn>
-          <Btn size="sm" onClick={() => saveVest(editor)}>Sačuvaj</Btn>
+          {editor.status !== 'objavljeno' && <Btn size="sm" onClick={() => void saveVest(editor)}>{busy ? 'Čuvanje…' : 'Sačuvaj'}</Btn>}
         </div>
       </div>
 
@@ -120,6 +199,7 @@ export default function Studio() {
         <div className="flex-1 p-8 overflow-y-auto">
           <input
             value={editor.naslov}
+            readOnly={connectedDemoEnabled && editor.status === 'objavljeno'}
             onChange={e => setEditor({ ...editor, naslov: e.target.value })}
             className="w-full text-3xl outline-none border-b pb-4 mb-8 font-display"
             style={{ fontFamily: 'DM Serif Display, Georgia, serif', color: C.navy, borderColor: C.s100 }}
@@ -132,9 +212,9 @@ export default function Studio() {
               <button key={t} type="button" title={`Umetni ${t}`} onClick={() => formatContent(t)} className="w-7 h-7 rounded flex items-center justify-center text-xs font-mono hover:bg-surface-100 transition-colors" style={{ color: C.ink5 }}>{t}</button>
             ))}
             <div className="h-5 w-px mx-2" style={{ background: C.s200 }} />
-            <Btn variant="ghost" size="sm" onClick={() => chooseFile('image/*')}><Ic.Upload /> Slika</Btn>
+            {(!connectedDemoEnabled || editor.status !== 'objavljeno') && <><Btn variant="ghost" size="sm" onClick={() => chooseFile('image/*')}><Ic.Upload /> Slika</Btn>
             <Btn variant="ghost" size="sm" onClick={() => chooseFile('video/*')}><Ic.Link /> Video</Btn>
-            <Btn variant="ghost" size="sm" onClick={() => chooseFile('application/pdf')}><Ic.Upload /> PDF</Btn>
+            <Btn variant="ghost" size="sm" onClick={() => chooseFile('application/pdf')}><Ic.Upload /> PDF</Btn></>}
           </div>
 
           <input ref={uploadRef} type="file" className="hidden" onChange={e => {
@@ -146,9 +226,11 @@ export default function Studio() {
           {attachments.length > 0 && <div className="flex flex-wrap gap-2 mb-4">{attachments.map(file => (
             <a key={file.url} href={file.url} target="_blank" rel="noreferrer" className="text-xs px-3 py-2 rounded-lg border" style={{ borderColor: C.s200, color: C.teal2 }}>{file.name}</a>
           ))}</div>}
+          {(imagePreview || editor.imageUrl) && <div className="mb-5 max-w-md"><img src={imagePreview || editor.imageUrl || ''} alt={`Naslovna slika: ${editor.naslov}`} className="w-full rounded-xl border object-cover max-h-64" style={{ borderColor: C.s200 }} /><div className="text-xs mt-1" style={{ color: C.ink5 }}>{imageFile ? 'Nova slika — još nije sačuvana' : 'Sačuvana naslovna slika'}</div></div>}
 
           <textarea ref={textRef}
             value={editor.sadrzaj}
+            readOnly={connectedDemoEnabled && editor.status === 'objavljeno'}
             onChange={e => setEditor({ ...editor, sadrzaj: e.target.value })}
             rows={20}
             className="w-full outline-none resize-none text-base leading-relaxed"
@@ -217,8 +299,8 @@ export default function Studio() {
             )}
 
             <div className="flex flex-col gap-2 pt-2">
-              {editor.status !== 'objavljeno' && <Btn onClick={() => editor.status === 'odobreno' ? saveVest(editor, 'objavljeno') : (setMessage('Pre objave je potrebna stručna provera i odobrenje.'), saveVest(editor, 'recenzija'))}>{editor.status === 'odobreno' ? 'Objavi' : 'Pošalji na proveru'}</Btn>}
-              {editor.status === 'objavljeno' && <Btn variant="danger" onClick={() => saveVest(editor, 'arhivirano')}>Povuci objavu</Btn>}
+              {editor.status !== 'objavljeno' && <Btn onClick={() => void saveVest(editor, editor.status === 'odobreno' ? 'objavljeno' : 'recenzija')}>{busy ? 'Sačekajte…' : editor.status === 'odobreno' ? 'Objavi u aplikaciji' : 'Pošalji na proveru'}</Btn>}
+              {editor.status === 'objavljeno' && <Btn variant="danger" onClick={() => void saveVest(editor, 'arhivirano')}>Povuci objavu</Btn>}
               <Btn variant="secondary" onClick={() => window.print()}><Ic.Download /> Štampaj / sačuvaj PDF</Btn>
             </div>
           </div>
@@ -230,6 +312,7 @@ export default function Studio() {
   return (
     <PageWrap>
       {message && <div role="status" className="rounded-lg border p-3 text-sm" style={{ borderColor: C.s200, background: C.s50, color: C.ink7 }}>{message}</div>}
+      {connectedDemoEnabled && legacyNews.length > 0 && <div className="rounded-xl border p-4 flex items-center justify-between gap-4" style={{ borderColor: C.s200, background: C.s50 }}><div><div className="font-medium" style={{ color: C.navy }}>Pronađeno {legacyNews.length} lokalnih vesti</div><div className="text-xs" style={{ color: C.ink5 }}>Možete ih preneti kao nacrte. Ranije slike nisu trajno sačuvane i moraju se ponovo dodati.</div></div><Btn size="sm" onClick={() => void importLegacyNews()}>{busy ? 'Prenos…' : 'Prenesi nacrte'}</Btn></div>}
       <input ref={galleryUploadRef} type="file" className="hidden" onChange={e => { addFile(e.target.files?.[0]); e.target.value = '' }} />
       <div className="flex items-center gap-3 flex-wrap">
         <Tabs tabs={[{ id: 'vesti', label: 'Vesti i objave' }, { id: 'dokumenti', label: 'Dokumenti' }, { id: 'mediji', label: 'Mediji' }]}
@@ -253,7 +336,7 @@ export default function Studio() {
               {filtered.length === 0
                 ? <tr><td colSpan={8}><EmptyState message="Nema vesti za prikaz." /></td></tr>
                 : filtered.map(v => (
-                  <TR key={v.id} onClick={() => setEditor(v)}>
+                  <TR key={v.id} onClick={() => { setImageFile(null); setImagePreview(null); setEditor(v) }}>
                     <TD><span className="font-medium" style={{ color: C.ink9 }}>{v.naslov}</span></TD>
                     <TD muted>{v.kategorija}</TD>
                     <TD muted>{v.autor}</TD>
@@ -263,7 +346,7 @@ export default function Studio() {
                     <TD><StatusBadge status={v.status} /></TD>
                     <TD>
                       <div className="flex gap-1" onClick={e => e.stopPropagation()}>
-                        <Btn variant="ghost" size="sm" onClick={() => setEditor(v)}><Ic.Edit /></Btn>
+                        <Btn variant="ghost" size="sm" onClick={() => { setImageFile(null); setImagePreview(null); setEditor(v) }}><Ic.Edit /></Btn>
                         <Btn variant="ghost" size="sm" onClick={() => { setPrevVest(v); setPreviewModal(true) }}><Ic.Eye /></Btn>
                       </div>
                     </TD>
@@ -370,6 +453,7 @@ export default function Studio() {
             </div>
             <h2 style={{ fontFamily: 'DM Serif Display, Georgia, serif', color: C.navy, fontSize: '1.5rem' }}>{prevVest.naslov}</h2>
             <div className="text-xs" style={{ color: C.ink3 }}>Autor: {prevVest.autor}</div>
+            {prevVest.imageUrl && <img src={prevVest.imageUrl} alt={prevVest.naslov} className="w-full max-h-72 object-cover rounded-xl" />}
             {prevVest.sadrzaj ? (
               <div className="text-sm leading-relaxed" style={{ color: C.ink7 }}>{prevVest.sadrzaj}</div>
             ) : (

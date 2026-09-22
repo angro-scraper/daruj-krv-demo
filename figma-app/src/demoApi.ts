@@ -7,6 +7,9 @@ export const connectedDemoEnabled = Boolean(baseUrl)
 export type DemoAction = { id: string; title: string; date: string; startTime: string; endTime: string; venue: string; city: string; capacity: number; status: 'planned' | 'published' | 'completed' | 'cancelled'; reservationRequired: boolean; slots: string[] }
 export type DemoReservation = { id: string; personaId: string; actionId: string; time: string; code: string; status: 'reserved' | 'checked_in' | 'no_show' }
 export type DemoSummary = { actions: DemoAction[]; counts: { action_id: string; status: string; total: string }[] }
+export type DemoNews = { id: string; title: string; author: string; category: string; content: string; imageId: string | null; imageUrl: string | null; status: 'nacrt' | 'recenzija' | 'odobreno' | 'objavljeno' | 'arhivirano'; version: number; createdAt: string; updatedAt: string; publishedAt: string | null }
+export type DemoNewsInput = { title: string; author: string; category: string; content: string; imageId: string | null }
+export function demoMediaUrl(path: string | null) { return path ? `${baseUrl}${path}` : null }
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`, { ...init, headers: { 'Content-Type': 'application/json', 'X-Demo-Access': accessCode, ...init.headers } })
@@ -41,4 +44,14 @@ export async function setDemoActionStatus(id: string, status: DemoAction['status
 export async function getDemoReception() { return call<DemoReservation[]>('/v1/reception/reservations') }
 export async function updateDemoReception(code: string, operation: 'check-in' | 'no-show') {
   return call<DemoReservation>(`/v1/reception/reservations/${encodeURIComponent(code)}/${operation}`, { method: 'POST' })
+}
+export async function getDemoNews() { return call<DemoNews[]>('/v1/news?scope=all') }
+export async function createDemoNews(input: DemoNewsInput) { return call<DemoNews>('/v1/news', { method: 'POST', body: JSON.stringify(input) }) }
+export async function updateDemoNews(id: string, input: DemoNewsInput) { return call<DemoNews>(`/v1/news/${id}`, { method: 'PATCH', body: JSON.stringify(input) }) }
+export async function setDemoNewsStatus(id: string, status: DemoNews['status']) { return call<DemoNews>(`/v1/news/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }) }
+export async function uploadDemoImage(file: File) {
+  const response = await fetch(`${baseUrl}/v1/media`, { method: 'POST', headers: { 'Content-Type': file.type, 'X-Demo-Access': accessCode }, body: file })
+  const result = await response.json()
+  if (!response.ok) throw new Error(result?.error?.message || 'Slika nije sačuvana.')
+  return result.data as { id: string; url: string }
 }
