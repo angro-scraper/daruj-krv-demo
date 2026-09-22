@@ -3,11 +3,12 @@ import { type Akcija } from '../data'
 import { downloadCsv, loadActions, saveActions } from '../actionStore'
 import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, Input, Select, SearchBar, Progress, EmptyState } from '../components/ui'
 import { Ic } from '../components/Icons'
+import { PlaceSearch } from '../components/PlaceSearch'
 
 const MESECI = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Avg', 'Sep', 'Okt', 'Nov', 'Dec']
 const FILIJALE = ['Sve filijale', 'Beograd', 'Novi Sad', 'Niš', 'Kragujevac']
 const YEARS = Array.from({ length: 101 }, (_, index) => 2000 + index)
-const EMPTY_ACTION = { naziv: '', datum: '', lokacija: '', filijala: 'Beograd', kapacitet: '', koordinator: '' }
+const EMPTY_ACTION = { naziv: '', datum: '', lokacija: '', mesto: '', filijala: 'Beograd', kapacitet: '', koordinator: '' }
 
 function dateOfAction(action: Akcija) {
   const match = action.datum.match(/^(\d{1,2})\.\s*([\p{L}]+)\s*(\d{4})/u)
@@ -34,7 +35,7 @@ export default function Akcije() {
   useEffect(() => { saveActions(actions) }, [actions])
 
   const filtered = actions.filter(a => {
-    const matchSearch = a.naziv.toLowerCase().includes(search.toLowerCase()) || a.lokacija.toLowerCase().includes(search.toLowerCase())
+    const matchSearch = a.naziv.toLowerCase().includes(search.toLowerCase()) || a.lokacija.toLowerCase().includes(search.toLowerCase()) || (a.mesto || '').toLowerCase().includes(search.toLowerCase())
     const matchFil = filijala === 'Sve filijale' || a.filijala === filijala
     const statusValue = ({ Planirana: 'planirana', Aktivna: 'aktivna', Završena: 'zavrsena', Otkazana: 'otkazana' } as Record<string, string>)[status]
     const matchStatus = status === 'Svi statusi' || a.status === statusValue
@@ -51,20 +52,20 @@ export default function Akcije() {
   }
 
   function saveAction() {
-    if (!form.naziv.trim() || !form.datum || !form.lokacija.trim() || Number(form.kapacitet) < 1) {
-      setMessage('Popunite naziv, datum, lokaciju i kapacitet.'); return
+    if (!form.naziv.trim() || !form.datum || !form.lokacija.trim() || !form.mesto.trim() || Number(form.kapacitet) < 1) {
+      setMessage('Popunite naziv, datum, lokaciju, mesto i kapacitet.'); return
     }
     const date = new Date(`${form.datum}T12:00:00`)
     const datum = `${date.getDate()}. ${MESECI[date.getMonth()].toLowerCase()} ${date.getFullYear()}`
     if (editingId) {
       setActions(current => current.map(action => action.id === editingId ? {
-        ...action, naziv: form.naziv.trim(), datum, lokacija: form.lokacija.trim(),
+        ...action, naziv: form.naziv.trim(), datum, lokacija: form.lokacija.trim(), mesto: form.mesto.trim(),
         filijala: form.filijala, kapacitet: Number(form.kapacitet), koordinator: form.koordinator.trim(),
       } : action))
     } else {
       setActions(current => [{
         id: `AK-${date.getFullYear()}-${Date.now().toString().slice(-5)}`,
-        naziv: form.naziv.trim(), datum, lokacija: form.lokacija.trim(), filijala: form.filijala,
+        naziv: form.naziv.trim(), datum, lokacija: form.lokacija.trim(), mesto: form.mesto.trim(), filijala: form.filijala,
         kapacitet: Number(form.kapacitet), prijavljeni: 0, donacije: 0,
         koordinator: form.koordinator.trim() || 'Nije dodeljen', status: 'planirana',
       }, ...current])
@@ -76,7 +77,7 @@ export default function Akcije() {
   function editAction(action: Akcija) {
     const date = dateOfAction(action)
     setForm({ naziv: action.naziv, datum: date ? `${date.year}-${String(date.month + 1).padStart(2, '0')}-${String(date.day).padStart(2, '0')}` : '',
-      lokacija: action.lokacija, filijala: action.filijala, kapacitet: String(action.kapacitet), koordinator: action.koordinator })
+      lokacija: action.lokacija, mesto: action.mesto || '', filijala: action.filijala, kapacitet: String(action.kapacitet), koordinator: action.koordinator })
     setEditingId(action.id); setDetaljiModal(false); setNovaModal(true)
   }
 
@@ -115,6 +116,7 @@ export default function Akcije() {
                   <TD mono>{a.datum}</TD>
                   <TD>
                     <div style={{ color: C.ink7 }}>{a.lokacija}</div>
+                    {a.mesto && <div className="text-xs" style={{ color: C.ink5 }}>{a.mesto}</div>}
                     <div className="text-xs" style={{ color: C.ink3 }}>{a.filijala}</div>
                   </TD>
                   <TD>
@@ -231,7 +233,7 @@ export default function Akcije() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="text-lg font-medium mb-1" style={{ color: C.navy, fontFamily: 'DM Serif Display, Georgia, serif' }}>{selAkcija.naziv}</h3>
-                <p className="text-sm" style={{ color: C.ink3 }}>{selAkcija.lokacija} · {selAkcija.datum}</p>
+                <p className="text-sm" style={{ color: C.ink3 }}>{selAkcija.lokacija}{selAkcija.mesto ? `, ${selAkcija.mesto}` : ''} · {selAkcija.datum}</p>
               </div>
               <StatusBadge status={selAkcija.status} />
             </div>
@@ -272,7 +274,8 @@ export default function Akcije() {
         <div className="grid grid-cols-2 gap-4">
           <Input label="Naziv akcije" value={form.naziv} onChange={naziv => setForm({ ...form, naziv })} placeholder="npr. Jesenji maraton" colSpan2 />
           <Input label="Datum" type="date" value={form.datum} onChange={datum => setForm({ ...form, datum })} />
-          <Input label="Lokacija" value={form.lokacija} onChange={lokacija => setForm({ ...form, lokacija })} placeholder="Adresa ili naziv mesta" colSpan2 />
+          <Input label="Lokacija / adresa" value={form.lokacija} onChange={lokacija => setForm({ ...form, lokacija })} placeholder="npr. Dom omladine, Makedonska 22" colSpan2 />
+          <PlaceSearch value={form.mesto} onChange={mesto => setForm({ ...form, mesto })} />
           <Select label="Filijala" options={FILIJALE.slice(1)} value={form.filijala} onChange={filijala => setForm({ ...form, filijala })} />
           <Input label="Kapacitet (donora)" type="number" value={form.kapacitet} onChange={kapacitet => setForm({ ...form, kapacitet })} placeholder="100" />
           <Input label="Koordinator" value={form.koordinator} onChange={koordinator => setForm({ ...form, koordinator })} placeholder="Ime koordinatora" />

@@ -16,6 +16,7 @@ export interface Korisnik {
 
 export interface Akcija {
   id: string; naziv: string; datum: string; lokacija: string
+  mesto?: string
   status: 'planirana' | 'aktivna' | 'zavrsena' | 'otkazana'
   kapacitet: number; prijavljeni: number; donacije: number
   koordinator: string; filijala: string
@@ -164,4 +165,3 @@ export const ROLE_COLORS: Record<Role, string> = {
   super_admin: '#8B1A2D', admin: '#0B1E3D', koordinator: '#17A89B',
   prijem: '#234085', medicinska: '#0e8a7f', pr_sadrzaj: '#5a6378', revizor: '#8e97a8',
 }
-
