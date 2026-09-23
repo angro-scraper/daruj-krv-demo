@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { INTEGRACIJE, type Integracija } from '../data'
 import { downloadCsv } from '../actionStore'
+import { checkDemoServiceConnection } from '../demoApi'
 import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, Progress, Input, Select } from '../components/ui'
 import { Ic } from '../components/Icons'
 
@@ -32,19 +33,12 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
   const checkSharedApi = async () => {
     setSharedApi('provera')
     try {
-      const [health, actions] = await Promise.all([
-        fetch('/health', { cache: 'no-store' }),
-        fetch('/v1/public/actions', { cache: 'no-store' }),
-      ])
-      if (!health.ok || !actions.ok) throw new Error(`HTTP ${health.status} / ${actions.status}`)
-      const healthData = await health.json()
-      const actionsData = await actions.json()
-      if (healthData.status !== 'ok' || !Array.isArray(actionsData.data)) throw new Error('Odgovor nije očekivanog formata')
+      const connection = await checkDemoServiceConnection()
       setSharedApi('povezan')
-      setSharedApiDetail('API odgovara. To potvrđuje dostupnost servisa, ne i prijavu, sinhronizaciju ili povezivanje instaliranih aplikacija.')
+      setSharedApiDetail(`Sintetički servis i baza su dostupni. Portal, aplikacija davalaca i aplikacija prijema dele isti demo API (${connection.actionCount} akcija u evidenciji).`)
     } catch (error) {
       setSharedApi('nepovezan')
-      setSharedApiDetail(`Nema zajedničkog API-ja na ovoj adresi (${error instanceof Error ? error.message : 'mrežna greška'}). Portal i aplikacije rade na odvojenim demo podacima.`)
+      setSharedApiDetail(`Zajednički demo servis trenutno nije dostupan (${error instanceof Error ? error.message : 'mrežna greška'}). Podaci se ne menjaju dok se veza ne vrati.`)
     }
   }
   useEffect(() => { void checkSharedApi() }, [])
@@ -72,11 +66,12 @@ export default function APIIntegracije({ initialTab = 'integracije' }: { initial
         { id: 'verzije', label: 'Verzije API-ja' },
       ]} active={tab} onChange={setTab} />
       <Card>
-        <div className="p-4 flex items-center justify-between gap-4 flex-wrap">
-          <div>
-            <div className="font-medium text-sm" style={{ color: C.navy }}>Zajednički API portala i aplikacija: {sharedApi === 'provera' ? 'provera' : sharedApi === 'povezan' ? 'dostupan' : 'nije povezan'}</div>
-            <p role="status" className="text-xs mt-1" style={{ color: sharedApi === 'nepovezan' ? C.burgundy : C.ink5 }}>{sharedApiDetail}</p>
-          </div>
+          <div className="p-4 flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <div className="font-medium text-sm" style={{ color: C.navy }}>Zajednički API portala i aplikacija: {sharedApi === 'provera' ? 'provera' : sharedApi === 'povezan' ? 'dostupan' : 'nije povezan'}</div>
+              <p role="status" className="text-xs mt-1" style={{ color: sharedApi === 'nepovezan' ? C.burgundy : C.ink5 }}>{sharedApiDetail}</p>
+              <p className="text-xs mt-1" style={{ color: C.ink3 }}>Stavke u tabeli ispod su demonstracioni prikaz spoljnih sistema; nisu potvrda veze sa aplikacijama.</p>
+            </div>
           <Btn variant="secondary" size="sm" onClick={() => void checkSharedApi()} disabled={sharedApi === 'provera'}>Ponovi proveru</Btn>
         </div>
       </Card>

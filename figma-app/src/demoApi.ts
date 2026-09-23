@@ -11,6 +11,12 @@ export type DemoNews = { id: string; title: string; author: string; category: st
 export type DemoNewsInput = { title: string; author: string; category: string; content: string; imageId: string | null }
 export function demoMediaUrl(path: string | null) { return path ? `${baseUrl}${path}` : null }
 
+export type DemoServiceHealth = {
+  status: 'ok'
+  mode: 'synthetic-only'
+  database: 'connected'
+}
+
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const response = await fetch(`${baseUrl}${path}`, { ...init, headers: { 'Content-Type': 'application/json', 'X-Demo-Access': accessCode, ...init.headers } })
   const body = await response.json()
@@ -28,6 +34,18 @@ export function toPortalAction(action: DemoAction, counts: DemoSummary['counts']
 }
 
 export async function getDemoSummary() { return call<DemoSummary>('/v1/portal/summary') }
+export async function checkDemoServiceConnection() {
+  if (!baseUrl) throw new Error('Adresa zajedničkog demo servisa nije podešena.')
+
+  const healthResponse = await fetch(`${baseUrl}/health`, { cache: 'no-store' })
+  const healthBody = await healthResponse.json().catch(() => null) as DemoServiceHealth | null
+  if (!healthResponse.ok || healthBody?.status !== 'ok' || healthBody.database !== 'connected') {
+    throw new Error(`Servis nije spreman (HTTP ${healthResponse.status}).`)
+  }
+
+  const summary = await getDemoSummary()
+  return { health: healthBody, actionCount: summary.actions.length }
+}
 export async function getDemoActions() {
   const summary = await getDemoSummary()
   return summary.actions.map(action => toPortalAction(action, summary.counts))
