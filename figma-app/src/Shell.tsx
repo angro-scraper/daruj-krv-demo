@@ -1,7 +1,6 @@
 import { type Korisnik, type Screen, ROLE_LABELS } from './data'
 import { C } from './components/ui'
 import { Ic } from './components/Icons'
-import { ROUTE_BY_SCREEN } from './routes'
 
 // ── Nav definition per role ────────────────────────────────────────────────
 const NAV_SUPER_ADMIN = [
@@ -136,9 +135,6 @@ export function Sidebar({ screen, onNav, user, onLogout, collapsed, onToggle }: 
 
       {/* Rola badge i user */}
       <div className="border-t p-3" style={{ borderColor: C.navy2 }}>
-        {isSA && <a href={`/admin/operativno.html#portal/${ROUTE_BY_SCREEN[screen]}`} target="_blank" rel="noreferrer"
-          title="Postojeći operativni alati" className="flex items-center gap-2 px-1 py-2 mb-2 text-xs rounded hover:bg-white/10"
-          style={{ color: C.teal3 }}><Ic.Akcije />{!collapsed && 'Postojeći operativni alati'}</a>}
         {!collapsed && (
           <div className="mb-2 px-1">
             <span className="text-xs font-medium" style={{ color: C.ink3 }}>
