@@ -272,6 +272,7 @@ export default function Akcije() {
                 { l: 'ID akcije', v: selAkcija.id },
                 { l: 'Filijala', v: selAkcija.filijala },
                 { l: 'Koordinator', v: selAkcija.koordinator },
+                { l: 'Kod za prijem', v: selAkcija.receptionCode || 'Dostupan nakon čuvanja akcije' },
                 { l: 'Kapacitet', v: String(selAkcija.kapacitet) },
                 { l: 'Prijavljeni', v: String(selAkcija.prijavljeni) },
                 { l: 'Donacije', v: selAkcija.donacije > 0 ? String(selAkcija.donacije) : 'U toku' },
