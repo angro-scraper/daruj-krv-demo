@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { KORISNICI_LISTA, type Korisnik, type Role, ROLE_LABELS } from '../data'
 import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, Input, Select, SearchBar, RoleBadge, EmptyState, ConfirmDialog } from '../components/ui'
 import { Ic } from '../components/Icons'
+import { connectedDemoEnabled, createDemoStaffInvite, getDemoStaffInvites, type DemoStaffInvite } from '../demoApi'
 
 const POZICIJE = ['Sve pozicije', 'Lekar', 'Medicinski tehničar', 'Koordinator', 'Referent za prijem', 'PR menadžer', 'IT administrator', 'Revizor']
 const USERS_KEY = 'portal-figma-users-v1'
@@ -19,7 +20,7 @@ const INITIAL_POSITIONS: Position[] = [
 function loadPositions(): Position[] {
   try { const saved = JSON.parse(localStorage.getItem(POSITIONS_KEY) || 'null'); return Array.isArray(saved) ? saved : INITIAL_POSITIONS } catch { return INITIAL_POSITIONS }
 }
-type Invite = { name: string; email: string; role: string; scope: string; sent: string; status?: string }
+type Invite = { id?: string; name: string; email: string; role: string; scope: string; sent: string; status?: string; activationCode?: string }
 const DEMO_REGISTRATIONS: Invite[] = [
   { name: 'Dragan Popović', email: 'd.popovic@zavodbk.rs', role: 'prijem', scope: 'Beograd', sent: '19. sep 2026', status: 'odobreno' },
   { name: 'Katarina Đukić', email: 'k.djukic@zavodbk.rs', role: 'prijem', scope: 'Beograd', sent: '21. sep 2026', status: 'ceka' },
@@ -35,6 +36,19 @@ function loadInvites(): Invite[] {
     return [...current, ...DEMO_REGISTRATIONS.filter(item => !current.some(existing => existing.email === item.email))]
   } catch { return DEMO_REGISTRATIONS }
 }
+function inviteFromDemo(invite: DemoStaffInvite): Invite {
+  const status = ({ pending: 'ceka', activated: 'odobreno', revoked: 'odbijeno', expired: 'istekao' } as const)[invite.status]
+  return {
+    id: invite.id,
+    name: invite.email,
+    email: invite.email,
+    role: invite.role,
+    scope: invite.branch,
+    sent: new Date(invite.createdAt).toLocaleString('sr-Latn-RS'),
+    status,
+    activationCode: invite.activationCode,
+  }
+}
 
 export default function Osoblje() {
   const [allUsers, setAllUsers] = useState(loadUsers)
@@ -46,6 +60,7 @@ export default function Osoblje() {
   const [formBranch, setFormBranch] = useState('Beograd')
   const [editId, setEditId] = useState<string | null>(null)
   const [feedback, setFeedback] = useState('')
+  const [lastActivationCode, setLastActivationCode] = useState('')
   const [tab, setTab] = useState('korisnici')
   const [search, setSearch] = useState('')
   const [ulogaFilter, setUlogaFilter] = useState('Sve')
@@ -60,6 +75,12 @@ export default function Osoblje() {
   const [positionName, setPositionName] = useState('')
   const [positionRole, setPositionRole] = useState<Role>('prijem')
   const [positionVacancies, setPositionVacancies] = useState('0')
+  useEffect(() => {
+    if (!connectedDemoEnabled) return
+    void getDemoStaffInvites()
+      .then(items => setInvites(items.map(inviteFromDemo)))
+      .catch(error => setFeedback(`Pozivnice: ${error instanceof Error ? error.message : 'demo servis nije dostupan.'}`))
+  }, [])
   const openPosition = (position?: Position) => {
     setFeedback('')
     setOldPositionName(position?.poz || null); setPositionName(position?.poz || '')
@@ -113,7 +134,19 @@ export default function Osoblje() {
     setFeedback(old ? 'Demo podaci korisnika su izmenjeni.' : 'Demo korisnik je evidentiran kao neaktivan. Prava prijava zahteva serversku aktivaciju.')
   }
   const recordInvite = () => {
-    if (!/^[^@]+@[^@]+\.[^@]+$/.test(formEmail)) { setFeedback('Unesite ispravnu adresu e-pošte.'); return }
+    if (!/^[a-z0-9._-]{2,64}@demo\.zavod\.rs$/i.test(formEmail.trim())) { setFeedback('Za izolovanu demonstraciju unesite sintetičku adresu oblika ime@demo.zavod.rs.'); return }
+    if (connectedDemoEnabled) {
+      void createDemoStaffInvite({ email: formEmail, role: formRole as DemoStaffInvite['role'], branch: formBranch })
+        .then(invite => {
+          const mapped = inviteFromDemo(invite)
+          setInvites(current => [mapped, ...current])
+          setLastActivationCode(invite.activationCode || '')
+          setInviteModal(false)
+          setFeedback('Jednokratni poziv je kreiran u zajedničkom sintetičkom demo servisu. Kod važi 24 sata i prikazuje se samo sada.')
+        })
+        .catch(error => setFeedback(error instanceof Error ? error.message : 'Pozivnica nije kreirana.'))
+      return
+    }
     const next = [{ name: `${formName} ${formSurname}`.trim() || formEmail, email: formEmail.trim(), role: formRole, scope: formBranch, sent: new Date().toLocaleString('sr-Latn-RS'), status: 'ceka' }, ...invites]
     setInvites(next); localStorage.setItem(INVITES_KEY, JSON.stringify(next))
     setInviteModal(false)
@@ -133,6 +166,7 @@ export default function Osoblje() {
         { id: 'registracije', label: 'Registracije' },
       ]} active={tab} onChange={setTab} />
       {feedback && <div role="status" className="rounded-lg px-4 py-2 text-sm" style={{ background: C.tealBg, color: C.teal2 }}>{feedback}</div>}
+      {lastActivationCode && <div role="status" className="rounded-lg px-4 py-3 text-sm flex items-center gap-2 flex-wrap" style={{ background: C.burgundyBg, color: C.ink7 }}><strong>Jednokratni poziv za prijem:</strong><code className="font-mono font-semibold">{lastActivationCode}</code><span style={{ color: C.ink3 }}>Sačuvajte ga za sintetičkog zaposlenog; posle aktivacije više se ne prikazuje.</span></div>}
 
       {tab === 'korisnici' && (
         <>
@@ -144,7 +178,7 @@ export default function Osoblje() {
               {Object.entries(ROLE_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
             <div className="flex-1" />
-            <Btn variant="secondary" onClick={() => { setFormEmail(''); setFormRole('prijem'); setFormBranch('Beograd'); setInviteModal(true) }}><Ic.Send /> Pozivnica</Btn>
+            <Btn variant="secondary" onClick={() => { setLastActivationCode(''); setFormEmail(''); setFormRole('prijem'); setFormBranch('Beograd'); setInviteModal(true) }}><Ic.Send /> Pozivnica</Btn>
             <Btn onClick={() => openUserForm()}><Ic.Plus /> Novi korisnik</Btn>
           </div>
 
@@ -264,7 +298,7 @@ export default function Osoblje() {
       {tab === 'registracije' && (
         <Card>
           <CardHeader title="Zahtevi za registraciju" action={
-            <Btn size="sm" onClick={() => { setFormEmail(''); setFormRole('prijem'); setFormBranch('Beograd'); setInviteModal(true) }}><Ic.Send /> Evidentiraj pozivnicu</Btn>
+            <Btn size="sm" onClick={() => { setLastActivationCode(''); setFormEmail(''); setFormRole('prijem'); setFormBranch('Beograd'); setInviteModal(true) }}><Ic.Send /> Nova pozivnica</Btn>
           } />
           <Table headers={['Ime', 'Email', 'Uloga', 'Datum zahteva', 'Pozvao', 'Status', 'Akcija']}>
             {invites.map(invite => ({ ime: invite.name, email: invite.email, uloga: ROLE_LABELS[invite.role as Role] || invite.role, datum: invite.sent, pozvao: 'Super admin (demo)', status: invite.status || 'ceka' })).map(r => (
@@ -350,18 +384,18 @@ export default function Osoblje() {
         </div>
       </Modal>
 
-      <Modal open={inviteModal} onClose={() => setInviteModal(false)} title="Pošalji pozivnicu">
+      <Modal open={inviteModal} onClose={() => setInviteModal(false)} title="Kreiraj jednokratni poziv">
         <div className="flex flex-col gap-4">
-          <Input label="Email adresa" type="email" placeholder="novi.korisnik@zavodbk.rs" value={formEmail} onChange={setFormEmail} />
+          <Input label="Sintetička službena e-pošta" type="email" placeholder="prijem.beograd@demo.zavod.rs" value={formEmail} onChange={setFormEmail} />
           <Select label="Uloga" options={Object.values(ROLE_LABELS)} value={ROLE_LABELS[formRole]} onChange={label => setFormRole((Object.entries(ROLE_LABELS).find(([, value]) => value === label)?.[0] || 'prijem') as Role)} />
           <Select label="Filijala" options={['Beograd', 'Novi Sad', 'Niš', 'Kragujevac', 'Centrala']} value={formBranch} onChange={setFormBranch} />
           <div>
             <label className="block text-xs font-medium mb-1.5" style={{ color: C.ink7 }}>Poruka (opciono)</label>
-            <textarea rows={3} className="w-full px-3 py-2 rounded-lg border text-sm outline-none resize-none" style={{ borderColor: C.s200, background: C.s50 }} placeholder="Poruka uz pozivnicu..." />
+            <textarea rows={3} className="w-full px-3 py-2 rounded-lg border text-sm outline-none resize-none" style={{ borderColor: C.s200, background: C.s50 }} placeholder="Napomena za demonstracioni tim..." />
           </div>
           <div className="flex gap-3 justify-end">
             <Btn variant="secondary" onClick={() => setInviteModal(false)}>Otkaži</Btn>
-            <Btn onClick={recordInvite}><Ic.Send /> Evidentiraj pozivnicu (demo)</Btn>
+            <Btn onClick={recordInvite}><Ic.Send /> Kreiraj jednokratni poziv</Btn>
           </div>
         </div>
       </Modal>

@@ -9,6 +9,11 @@ export type DemoReservation = { id: string; personaId: string; actionId: string;
 export type DemoSummary = { actions: DemoAction[]; counts: { action_id: string; status: string; total: string }[] }
 export type DemoNews = { id: string; title: string; author: string; category: string; content: string; imageId: string | null; imageUrl: string | null; status: 'nacrt' | 'recenzija' | 'odobreno' | 'objavljeno' | 'arhivirano'; version: number; createdAt: string; updatedAt: string; publishedAt: string | null }
 export type DemoNewsInput = { title: string; author: string; category: string; content: string; imageId: string | null }
+export type DemoStaffInvite = {
+  id: string; email: string; role: 'prijem' | 'medicinska' | 'koordinator' | 'admin'; branch: string;
+  status: 'pending' | 'activated' | 'revoked' | 'expired'; expiresAt: string; activatedAt: string | null; createdAt: string; updatedAt: string;
+  activationCode?: string;
+}
 export function demoMediaUrl(path: string | null) { return path ? `${baseUrl}${path}` : null }
 
 export type DemoServiceHealth = {
@@ -67,6 +72,10 @@ export async function getDemoNews() { return call<DemoNews[]>('/v1/news?scope=al
 export async function createDemoNews(input: DemoNewsInput) { return call<DemoNews>('/v1/news', { method: 'POST', body: JSON.stringify(input) }) }
 export async function updateDemoNews(id: string, input: DemoNewsInput) { return call<DemoNews>(`/v1/news/${id}`, { method: 'PATCH', body: JSON.stringify(input) }) }
 export async function setDemoNewsStatus(id: string, status: DemoNews['status']) { return call<DemoNews>(`/v1/news/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) }) }
+export async function getDemoStaffInvites() { return call<DemoStaffInvite[]>('/v1/staff-invites') }
+export async function createDemoStaffInvite(input: { email: string; role: DemoStaffInvite['role']; branch: string }) {
+  return call<DemoStaffInvite>('/v1/staff-invites', { method: 'POST', body: JSON.stringify(input) })
+}
 export async function uploadDemoImage(file: File) {
   const response = await fetch(`${baseUrl}/v1/media`, { method: 'POST', headers: { 'Content-Type': file.type, 'X-Demo-Access': accessCode }, body: file })
   const result = await response.json()

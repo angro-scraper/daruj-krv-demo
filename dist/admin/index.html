@@ -1,20 +1,13 @@
 <!doctype html>
 <html lang="sr-Latn">
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="robots" content="noindex" />
-    <title>Portal Zavoda</title>
-    <script>
-      // Stari portal je čuvao stanje samo u pregledaču. Sve /admin ulaze
-      // preusmeravamo na jedini povezani portal i zadržavamo traženu rutu.
-      (function () {
-        var route = window.location.hash || '#prijava';
-        window.location.replace('/figma-preview/' + route);
-      }());
-    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kapi Života | Portal Zavoda</title>
+    <script type="module" crossorigin src="/admin/assets/index-DDVKwnTf.js"></script>
+    <link rel="stylesheet" crossorigin href="/admin/assets/index-BrjNO1TR.css">
   </head>
   <body>
-    <p>Otvaranje <a href="/figma-preview/#prijava">Portala Zavoda</a>…</p>
+    <div id="root"></div>
   </body>
 </html>
