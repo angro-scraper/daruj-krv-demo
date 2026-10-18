@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { KORISNICI_LISTA, type Korisnik, type Role, ROLE_LABELS } from '../data'
 import { C, PageWrap, Card, CardHeader, Tabs, StatusBadge, Table, TR, TD, Btn, Modal, Input, Select, SearchBar, RoleBadge, EmptyState, ConfirmDialog } from '../components/ui'
 import { Ic } from '../components/Icons'
-import { connectedDemoEnabled, createDemoStaffInvite, getDemoStaffInvites, type DemoStaffInvite } from '../demoApi'
+import { connectedDemoEnabled, createDemoStaffInvite, getDemoStaffInvites, updateDemoStaffDisplayName, type DemoStaffInvite } from '../demoApi'
 
 const POZICIJE = ['Sve pozicije', 'Lekar', 'Medicinski tehničar', 'Koordinator', 'Referent za prijem', 'PR menadžer', 'IT administrator', 'Revizor']
 const USERS_KEY = 'portal-figma-users-v1'
@@ -40,7 +40,7 @@ function inviteFromDemo(invite: DemoStaffInvite): Invite {
   const status = ({ pending: 'ceka', activated: 'odobreno', revoked: 'odbijeno', expired: 'istekao' } as const)[invite.status]
   return {
     id: invite.id,
-    name: invite.email,
+    name: invite.displayName || invite.email,
     email: invite.email,
     role: invite.role,
     scope: invite.branch,
@@ -68,6 +68,9 @@ export default function Osoblje() {
   const [detModal, setDetModal] = useState(false)
   const [noviModal, setNoviModal] = useState(false)
   const [inviteModal, setInviteModal] = useState(false)
+  const [inviteNameModal, setInviteNameModal] = useState(false)
+  const [inviteNameId, setInviteNameId] = useState('')
+  const [inviteName, setInviteName] = useState('')
   const [confirmDel, setConfirmDel] = useState(false)
   const [positions, setPositions] = useState(loadPositions)
   const [positionModal, setPositionModal] = useState(false)
@@ -135,8 +138,9 @@ export default function Osoblje() {
   }
   const recordInvite = () => {
     if (!/^[a-z0-9._-]{2,64}@demo\.zavod\.rs$/i.test(formEmail.trim())) { setFeedback('Za izolovanu demonstraciju unesite sintetičku adresu oblika ime@demo.zavod.rs.'); return }
+    if (!formName.trim() || !formSurname.trim()) { setFeedback('Unesite ime i prezime sintetičkog zaposlenog.'); return }
     if (connectedDemoEnabled) {
-      void createDemoStaffInvite({ email: formEmail, role: formRole as DemoStaffInvite['role'], branch: formBranch })
+      void createDemoStaffInvite({ email: formEmail, displayName: `${formName.trim()} ${formSurname.trim()}`, role: formRole as DemoStaffInvite['role'], branch: formBranch })
         .then(invite => {
           const mapped = inviteFromDemo(invite)
           setInvites(current => [mapped, ...current])
@@ -301,21 +305,22 @@ export default function Osoblje() {
             <Btn size="sm" onClick={() => { setLastActivationCode(''); setFormEmail(''); setFormRole('prijem'); setFormBranch('Beograd'); setInviteModal(true) }}><Ic.Send /> Nova pozivnica</Btn>
           } />
           <Table headers={['Ime', 'Email', 'Uloga', 'Datum zahteva', 'Pozvao', 'Status', 'Akcija']}>
-            {invites.map(invite => ({ ime: invite.name, email: invite.email, uloga: ROLE_LABELS[invite.role as Role] || invite.role, datum: invite.sent, pozvao: 'Super admin (demo)', status: invite.status || 'ceka' })).map(r => (
-              <TR key={r.email}>
-                <TD><span className="font-medium">{r.ime}</span></TD>
-                <TD mono muted>{r.email}</TD>
-                <TD muted>{r.uloga}</TD>
-                <TD mono>{r.datum}</TD>
-                <TD muted>{r.pozvao}</TD>
-                <TD><StatusBadge status={r.status} /></TD>
+            {invites.map(invite => (
+              <TR key={invite.email}>
+                <TD><span className="font-medium">{invite.name}</span></TD>
+                <TD mono muted>{invite.email}</TD>
+                <TD muted>{ROLE_LABELS[invite.role as Role] || invite.role}</TD>
+                <TD mono>{invite.sent}</TD>
+                <TD muted>Super admin (demo)</TD>
+                <TD><StatusBadge status={invite.status || 'ceka'} /></TD>
                 <TD>
-                  {r.status === 'ceka' ? (
+                  {invite.id && connectedDemoEnabled ? <Btn size="sm" variant="secondary" onClick={() => { setInviteNameId(invite.id || ''); setInviteName(invite.name === invite.email ? '' : invite.name); setInviteNameModal(true) }}>Uredi ime</Btn> : null}
+                  {invite.status === 'ceka' && !connectedDemoEnabled ? (
                     <div className="flex gap-2">
-                      <Btn size="sm" onClick={() => updateInvite(r.email, 'odobreno')}><Ic.Check /></Btn>
-                      <Btn variant="danger" size="sm" onClick={() => updateInvite(r.email, 'odbijeno')}><Ic.X /></Btn>
+                      <Btn size="sm" onClick={() => updateInvite(invite.email, 'odobreno')}><Ic.Check /></Btn>
+                      <Btn variant="danger" size="sm" onClick={() => updateInvite(invite.email, 'odbijeno')}><Ic.X /></Btn>
                     </div>
-                  ) : <span className="text-xs" style={{ color: C.ink3 }}>{r.status}</span>}
+                  ) : null}
                 </TD>
               </TR>
             ))}
@@ -384,8 +389,24 @@ export default function Osoblje() {
         </div>
       </Modal>
 
+      <Modal open={inviteNameModal} onClose={() => setInviteNameModal(false)} title="Ime zaposlenog za demo">
+        <div className="flex flex-col gap-4">
+          <Input label="Ime i prezime (izmišljeni podaci)" placeholder="Maja Petrović" value={inviteName} onChange={setInviteName} />
+          <div className="flex gap-3 justify-end"><Btn variant="secondary" onClick={() => setInviteNameModal(false)}>Otkaži</Btn><Btn onClick={() => {
+            if (!inviteName.trim().includes(' ')) { setFeedback('Unesite i ime i prezime.'); return }
+            void updateDemoStaffDisplayName(inviteNameId, inviteName.trim()).then(updated => {
+              setInvites(items => items.map(item => item.id === updated.id ? inviteFromDemo(updated) : item))
+              setInviteNameModal(false)
+              setFeedback('Ime zaposlenog je ažurirano u zajedničkom demo servisu.')
+            }).catch(error => setFeedback(error instanceof Error ? error.message : 'Ime nije sačuvano.'))
+          }}>Sačuvaj</Btn></div>
+        </div>
+      </Modal>
+
       <Modal open={inviteModal} onClose={() => setInviteModal(false)} title="Kreiraj jednokratni poziv">
         <div className="flex flex-col gap-4">
+          <Input label="Ime (demo)" placeholder="Maja" value={formName} onChange={setFormName} />
+          <Input label="Prezime (demo)" placeholder="Petrović" value={formSurname} onChange={setFormSurname} />
           <Input label="Sintetička službena e-pošta" type="email" placeholder="prijem.beograd@demo.zavod.rs" value={formEmail} onChange={setFormEmail} />
           <Select label="Uloga" options={Object.values(ROLE_LABELS)} value={ROLE_LABELS[formRole]} onChange={label => setFormRole((Object.entries(ROLE_LABELS).find(([, value]) => value === label)?.[0] || 'prijem') as Role)} />
           <Select label="Filijala" options={['Beograd', 'Novi Sad', 'Niš', 'Kragujevac', 'Centrala']} value={formBranch} onChange={setFormBranch} />
