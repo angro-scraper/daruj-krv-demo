@@ -13,4 +13,6 @@ Otvorite `index.html` u pregledaču ili pokrenite bilo koji statički HTTP serve
 
 ## Render
 
-`render.yaml` definiše Render Static Site objavu bez build koraka. Nakon povezivanja repozitorijuma na Renderu, objavljuje se koren repozitorijuma, a administrativni portal je dostupan na putanji `/admin/`.
+`render.yaml` definiše Render Static Site objavu. Nakon povezivanja repozitorijuma na Renderu, objavljuje se koren repozitorijuma, a administrativni portal je dostupan na putanji `/figma-preview/`.
+
+Za zajednički sintetički demo (portal, aplikacija davaoca i prijem) u Render servisu mora biti podešena šifrovana promenljiva okruženja `VITE_DEMO_ACCESS_CODE`. Javni API endpoint se podešava tokom build-a kroz `render.yaml`; pristupni kod se nikad ne čuva u Git-u. Bez oba podešavanja portal ostaje jasno označen kao lokalni Figma demo i ne prikazuje lažnu povezanost.

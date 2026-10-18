@@ -2,5 +2,7 @@ services:
   - type: web
     name: daruj-krv-demo
     runtime: static
-    buildCommand: cd figma-app && npm ci && npm run build:preview
+    # The access code stays in Render's encrypted environment. It must never
+    # be stored in this repository; Vite reads it only while building the demo.
+    buildCommand: cd figma-app && npm ci && VITE_DEMO_API_URL=https://kapi-zivota-synthetic-api.onrender.com npm run build:preview
     staticPublishPath: .

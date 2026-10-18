@@ -2,7 +2,18 @@ import type { Akcija } from './data'
 
 const baseUrl = (import.meta.env.VITE_DEMO_API_URL || '').replace(/\/$/, '')
 const accessCode = import.meta.env.VITE_DEMO_ACCESS_CODE || ''
-export const connectedDemoEnabled = Boolean(baseUrl)
+/**
+ * The shared synthetic service must have both its address and its access code
+ * at build time.  Falling back to the local Figma data when just one is
+ * present would make the portal look connected even though writes cannot be
+ * shared with the mobile applications.
+ */
+export const connectedDemoEnabled = Boolean(baseUrl && accessCode)
+export const demoConnectionConfigurationError = !baseUrl
+  ? 'Adresa zajedničkog demo servisa nije podešena.'
+  : !accessCode
+    ? 'Pristupni kod zajedničkog demo servisa nije podešen.'
+    : null
 
 export type DemoAction = { id: string; title: string; date: string; startTime: string; endTime: string; venue: string; city: string; capacity: number; status: 'planned' | 'published' | 'completed' | 'cancelled'; reservationRequired: boolean; slots: string[]; receptionCode?: string }
 export type DemoReservation = { id: string; personaId: string; actionId: string; time: string; code: string; status: 'reserved' | 'checked_in' | 'no_show' }
@@ -23,6 +34,7 @@ export type DemoServiceHealth = {
 }
 
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
+  if (!connectedDemoEnabled) throw new Error(demoConnectionConfigurationError || 'Zajednički demo servis nije podešen.')
   const response = await fetch(`${baseUrl}${path}`, { ...init, headers: { 'Content-Type': 'application/json', 'X-Demo-Access': accessCode, ...init.headers } })
   const body = await response.json()
   if (!response.ok) throw new Error(body?.error?.message || 'Demo servis nije dostupan.')
@@ -40,7 +52,7 @@ export function toPortalAction(action: DemoAction, counts: DemoSummary['counts']
 
 export async function getDemoSummary() { return call<DemoSummary>('/v1/portal/summary') }
 export async function checkDemoServiceConnection() {
-  if (!baseUrl) throw new Error('Adresa zajedničkog demo servisa nije podešena.')
+  if (!connectedDemoEnabled) throw new Error(demoConnectionConfigurationError || 'Zajednički demo servis nije podešen.')
 
   const healthResponse = await fetch(`${baseUrl}/health`, { cache: 'no-store' })
   const healthBody = await healthResponse.json().catch(() => null) as DemoServiceHealth | null
