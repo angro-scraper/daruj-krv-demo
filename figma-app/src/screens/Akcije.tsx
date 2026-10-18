@@ -9,7 +9,7 @@ import { connectedDemoEnabled, createDemoAction, editDemoAction, getDemoActions,
 const MESECI = ['Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun', 'Jul', 'Avg', 'Sep', 'Okt', 'Nov', 'Dec']
 const FILIJALE = ['Sve filijale', 'Beograd', 'Novi Sad', 'Niš', 'Kragujevac']
 const YEARS = Array.from({ length: 101 }, (_, index) => 2000 + index)
-const EMPTY_ACTION = { naziv: '', datum: '', lokacija: '', mesto: '', filijala: 'Beograd', kapacitet: '', koordinator: '', startTime: '10:00', endTime: '14:00' }
+const EMPTY_ACTION = { naziv: '', datum: '', lokacija: '', mesto: '', latitude: '', longitude: '', filijala: 'Beograd', kapacitet: '', koordinator: '', startTime: '10:00', endTime: '14:00' }
 
 function dateOfAction(action: Akcija) {
   const match = action.datum.match(/^(\d{1,2})\.\s*([\p{L}]+)\s*(\d{4})/u)
@@ -71,14 +71,19 @@ export default function Akcije() {
   }
 
   async function saveAction() {
+    const latitude = Number(form.latitude)
+    const longitude = Number(form.longitude)
     if (!form.naziv.trim() || !form.datum || !form.lokacija.trim() || !form.mesto.trim() || Number(form.kapacitet) < 1) {
       setMessage('Popunite naziv, datum, lokaciju, mesto i kapacitet.'); return
+    }
+    if (!Number.isFinite(latitude) || !Number.isFinite(longitude) || latitude < -90 || latitude > 90 || longitude < -180 || longitude > 180) {
+      setMessage('Unesite tačnu GPS širinu i dužinu lokacije akcije.'); return
     }
     const date = new Date(`${form.datum}T12:00:00`)
     const datum = `${date.getDate()}. ${MESECI[date.getMonth()].toLowerCase()} ${date.getFullYear()}`
     if (connectedDemoEnabled) {
       try {
-        const input = { title: form.naziv.trim(), date: form.datum, startTime: form.startTime, endTime: form.endTime, venue: form.lokacija.trim(), city: form.mesto.trim(), capacity: Number(form.kapacitet) }
+        const input = { title: form.naziv.trim(), date: form.datum, startTime: form.startTime, endTime: form.endTime, venue: form.lokacija.trim(), city: form.mesto.trim(), latitude, longitude, capacity: Number(form.kapacitet) }
         if (editingId) await editDemoAction(editingId, input)
         else await createDemoAction(input)
         setActions(await getDemoActions())
@@ -89,13 +94,13 @@ export default function Akcije() {
     }
     if (editingId) {
       setActions(current => current.map(action => action.id === editingId ? {
-        ...action, naziv: form.naziv.trim(), datum, lokacija: form.lokacija.trim(), mesto: form.mesto.trim(),
+        ...action, naziv: form.naziv.trim(), datum, lokacija: form.lokacija.trim(), mesto: form.mesto.trim(), latitude, longitude,
         filijala: form.filijala, kapacitet: Number(form.kapacitet), koordinator: form.koordinator.trim(),
       } : action))
     } else {
       setActions(current => [{
         id: `AK-${date.getFullYear()}-${Date.now().toString().slice(-5)}`,
-        naziv: form.naziv.trim(), datum, lokacija: form.lokacija.trim(), mesto: form.mesto.trim(), filijala: form.filijala,
+        naziv: form.naziv.trim(), datum, lokacija: form.lokacija.trim(), mesto: form.mesto.trim(), latitude, longitude, filijala: form.filijala,
         kapacitet: Number(form.kapacitet), prijavljeni: 0, donacije: 0,
         koordinator: form.koordinator.trim() || 'Nije dodeljen', status: 'planirana',
       }, ...current])
@@ -107,7 +112,7 @@ export default function Akcije() {
   function editAction(action: Akcija) {
     const date = dateOfAction(action)
     setForm({ naziv: action.naziv, datum: date ? `${date.year}-${String(date.month + 1).padStart(2, '0')}-${String(date.day).padStart(2, '0')}` : '',
-      lokacija: action.lokacija, mesto: action.mesto || '', filijala: action.filijala, kapacitet: String(action.kapacitet), koordinator: action.koordinator, startTime: action.startTime || '10:00', endTime: action.endTime || '14:00' })
+      lokacija: action.lokacija, mesto: action.mesto || '', latitude: action.latitude === null || action.latitude === undefined ? '' : String(action.latitude), longitude: action.longitude === null || action.longitude === undefined ? '' : String(action.longitude), filijala: action.filijala, kapacitet: String(action.kapacitet), koordinator: action.koordinator, startTime: action.startTime || '10:00', endTime: action.endTime || '14:00' })
     setEditingId(action.id); setDetaljiModal(false); setNovaModal(true)
   }
 
@@ -308,6 +313,9 @@ export default function Akcije() {
           <Input label="Lokacija / adresa" value={form.lokacija} onChange={lokacija => setForm({ ...form, lokacija })} placeholder="npr. Dom omladine, Makedonska 22" colSpan2 />
           <PlaceSearch value={form.mesto} onChange={mesto => setForm({ ...form, mesto })} />
           <Select label="Filijala" options={FILIJALE.slice(1)} value={form.filijala} onChange={filijala => setForm({ ...form, filijala })} />
+          <Input label="GPS širina" type="number" value={form.latitude} onChange={latitude => setForm({ ...form, latitude })} placeholder="44.8166" />
+          <Input label="GPS dužina" type="number" value={form.longitude} onChange={longitude => setForm({ ...form, longitude })} placeholder="20.4617" />
+          <p className="col-span-2 -mt-2 text-xs" style={{ color: C.ink3 }}>Obavezno za preciznu lokaciju na Android OpenStreetMap mapi. Koordinate se čuvaju uz akciju u zajedničkom servisu.</p>
           <Input label="Kapacitet (donora)" type="number" value={form.kapacitet} onChange={kapacitet => setForm({ ...form, kapacitet })} placeholder="100" />
           <Input label="Koordinator" value={form.koordinator} onChange={koordinator => setForm({ ...form, koordinator })} placeholder="Ime koordinatora" />
           <Input label="Vreme početka" type="time" value={form.startTime} onChange={startTime => setForm({ ...form, startTime })} />

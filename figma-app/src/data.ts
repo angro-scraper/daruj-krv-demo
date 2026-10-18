@@ -17,6 +17,7 @@ export interface Korisnik {
 export interface Akcija {
   id: string; naziv: string; datum: string; lokacija: string
   mesto?: string
+  latitude?: number | null; longitude?: number | null
   startTime?: string; endTime?: string
   receptionCode?: string
   status: 'planirana' | 'aktivna' | 'zavrsena' | 'otkazana'
