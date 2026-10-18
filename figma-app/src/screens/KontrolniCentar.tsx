@@ -7,7 +7,7 @@ import { loadApprovals } from './Odobravanje'
 import { C, KpiCard, Card, CardHeader, PageWrap, StatusBadge, Progress } from '../components/ui'
 import { Ic } from '../components/Icons'
 import { ActionMap } from '../components/ActionMap'
-import { connectedDemoEnabled, getDemoActions, getDemoReception } from '../demoApi'
+import { connectedDemoEnabled, getDemoActions, getDemoPortalReception } from '../demoApi'
 import type { Akcija } from '../data'
 export default function KontrolniCentar({ onNav, uloga }: { onNav: (s: Screen) => void; uloga: Role }) {
   const [remoteActions, setRemoteActions] = useState<Akcija[]>([])
@@ -16,7 +16,7 @@ export default function KontrolniCentar({ onNav, uloga }: { onNav: (s: Screen) =
   useEffect(() => {
     if (!connectedDemoEnabled) return
     let active = true
-    const refresh = () => { void Promise.all([getDemoActions(), getDemoReception()]).then(([actions, reservations]) => {
+    const refresh = () => { void Promise.all([getDemoActions(), getDemoPortalReception()]).then(([actions, reservations]) => {
       if (active) { setRemoteActions(actions); setRemoteReceptionCount(reservations.filter(item => item.status === 'checked_in').length); setDemoError('') }
     }).catch((error: unknown) => { if (active) setDemoError(error instanceof Error ? error.message : 'Demo servis nije dostupan.') }) }
     refresh()
@@ -35,7 +35,7 @@ export default function KontrolniCentar({ onNav, uloga }: { onNav: (s: Screen) =
 
   return (
     <PageWrap>
-      {connectedDemoEnabled && <div role="status" className="rounded-xl border p-3 text-sm" style={{ color: demoError ? C.burgundy : C.teal2, borderColor: demoError ? C.burgundy : C.teal, background: demoError ? C.burgundyBg : C.tealBg }}>{demoError ? `Povezani demo servis nije dostupan: ${demoError}` : 'Povezani sintetički demo · akcije i prijem se čitaju iz zasebnog servisa. Ostali moduli su prototip.'}</div>}
+      {connectedDemoEnabled && <div role="status" className="rounded-xl border p-3 text-sm" style={{ color: demoError ? C.burgundy : C.teal2, borderColor: demoError ? C.burgundy : C.teal, background: demoError ? C.burgundyBg : C.tealBg }}>{demoError ? `Povezani demo servis nije dostupan: ${demoError}` : 'Povezani sintetički demo · portal nadzire akcije i prijem, dok se dolazak evidentira samo u aplikaciji Prijem.'}</div>}
       {/* Dnevni prioriteti */}
       {((kritZalihe > 0 && allowed('izvestaji')) || (ceka_odobravanje > 0 && allowed('odobravanje')) || (intGreska > 0 && allowed('api_integracije'))) && (
         <div className="rounded-xl border p-4 flex flex-col gap-2" style={{ background: C.burgundyBg, borderColor: C.burgundy + '40' }}>

@@ -77,6 +77,7 @@ export async function setDemoActionStatus(id: string, status: DemoAction['status
   return call<DemoAction>(`/v1/actions/${encodeURIComponent(id)}`, { method: 'PATCH', body: JSON.stringify({ status }) })
 }
 export async function getDemoReception() { return call<DemoReservation[]>('/v1/reception/reservations') }
+export async function getDemoPortalReception() { return call<DemoReservation[]>('/v1/portal/reception') }
 export async function updateDemoReception(code: string, operation: 'check-in' | 'no-show') {
   return call<DemoReservation>(`/v1/reception/reservations/${encodeURIComponent(code)}/${operation}`, { method: 'POST' })
 }
